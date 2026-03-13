@@ -10,4 +10,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HRMS.Core\HRMS.Core.csproj" />
+    <ProjectReference Include="..\HRMS.Data\HRMS.Data.csproj" />
+  </ItemGroup>
+
 </Project>

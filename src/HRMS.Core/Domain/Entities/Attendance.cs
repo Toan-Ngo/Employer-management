@@ -9,6 +9,8 @@ namespace HRMS.Core.Domain.Entities
         [Key]
         public int Id { get; set; }
         public DateTime AttendanceDate { get; set; }
+        public DateTime? CheckInTime { get; set; }
+        public DateTime? CheckOutTime { get; set; }
         [Required]
         [StringLength(50)]
         [ForeignKey("Employee")]

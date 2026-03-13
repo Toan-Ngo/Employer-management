@@ -43,7 +43,7 @@ namespace HRMS.Core.Domain.Entities
         [Required]
         public DateTime HireDate { get; set; } // ngày tuyển dụng
 
-        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>(); // 
         public ICollection<Salary> Salaries { get; set; } = new List<Salary>();
         public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
         public ICollection<Contract> Contracts { get; set; } = new List<Contract>();

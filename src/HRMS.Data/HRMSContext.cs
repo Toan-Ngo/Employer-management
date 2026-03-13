@@ -1,10 +1,12 @@
 ﻿using HRMS.Core.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Data
 {
-    public class HRMSContext : IdentityDbContext<ApplicationUser>
+    // Fix for CS0311: Ensure ApplicationUser inherits from IdentityUser<string>
+    public class HRMSContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
     {
         public HRMSContext(DbContextOptions<HRMSContext> options) : base(options)
         {
