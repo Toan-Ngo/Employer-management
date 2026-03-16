@@ -1,4 +1,4 @@
-﻿using HRMS.Core.Domain.Entities;
+﻿using HRMS.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ namespace HRMS.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Position> Positions { get; set; }
         public DbSet<Attendance> Attendances { get; set; }
-        public DbSet<Salary> Salaries { get; set; }
+        public DbSet<Payroll> Payrolls { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
         public DbSet<Contract> Contracts { get; set; }
         // Cấu hình quan hệ giữa các thực thể
@@ -44,7 +44,7 @@ namespace HRMS.Data
                 .WithMany(e => e.Contracts)
                 .HasForeignKey(c => c.EmployeeId);
             // Cấu hình quan hệ giữa Employee và Salary
-            modelBuilder.Entity<Salary>()
+            modelBuilder.Entity<Payroll>()
                 .HasOne(s => s.Employee)
                 .WithMany(e => e.Salaries)
                 .HasForeignKey(s => s.EmployeeId);
@@ -57,7 +57,22 @@ namespace HRMS.Data
             modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employee)
                 .WithOne()
-                .HasForeignKey<ApplicationUser>(u => u.EmployeeId);
+                .HasForeignKey<ApplicationUser>(u => u.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ApplicationUser>().ToTable("Users");
+
+            modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+
+            modelBuilder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
+
+            modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
+
+            modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
+
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
+
+            modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
         }
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {

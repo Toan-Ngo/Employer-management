@@ -1,0 +1,156 @@
+<c-row class="mb-4">
+
+  <c-col md="3">
+    <c-card>
+      <c-card-body>
+        <h4>{{totalEmployees}}</h4>
+        <p>Total Employees</p>
+      </c-card-body>
+    </c-card>
+  </c-col>
+
+  <c-col md="3">
+    <c-card>
+      <c-card-body>
+        <h4>{{totalDepartments}}</h4>
+        <p>Departments</p>
+      </c-card-body>
+    </c-card>
+  </c-col>
+
+  <c-col md="3">
+    <c-card>
+      <c-card-body>
+        <h4>{{attendanceRate}}%</h4>
+        <p>Attendance Rate</p>
+      </c-card-body>
+    </c-card>
+  </c-col>
+
+  <c-col md="3">
+    <c-card>
+      <c-card-body>
+        <h4>{{totalLeaves}}</h4>
+        <p>Leave Requests</p>
+      </c-card-body>
+    </c-card>
+  </c-col>
+
+</c-row>
+
+
+<c-card class="my-4">
+
+  <c-card-body>
+
+    <c-row>
+      <c-col sm="5">
+        <h4 class="card-title mb-0">Tổng Quan</h4>
+        <div class="small text-body-secondary">Employee Growth 2026</div>
+      </c-col>
+    </c-row>
+
+    <c-chart
+      [data]="mainChart.data"
+      [height]="300"
+      [style.marginTop.px]="40"
+      [options]="mainChart.options"
+      [type]="mainChart.type">
+    </c-chart>
+
+  </c-card-body>
+
+
+  <c-card-footer>
+
+    <c-row class="text-center mb-2" [xl]="4" [lg]="4" [sm]="2" [xs]="1" [gutter]="4">
+
+      <c-col>
+        <div class="text-body-secondary">Total Employees</div>
+        <strong>{{totalEmployees}} Employees</strong>
+        <c-progress class="mt-2" thin color="success" [value]="totalEmployees"></c-progress>
+      </c-col>
+
+      <c-col>
+        <div class="text-body-secondary">Departments</div>
+        <strong>{{totalDepartments}} Departments</strong>
+        <c-progress class="mt-2" thin color="info" [value]="totalDepartments"></c-progress>
+      </c-col>
+
+      <c-col>
+        <div class="text-body-secondary">Attendance Rate</div>
+        <strong>{{attendanceRate}}%</strong>
+        <c-progress class="mt-2" thin color="warning" [value]="attendanceRate"></c-progress>
+      </c-col>
+
+      <c-col>
+        <div class="text-body-secondary">Total Payroll</div>
+        <strong>{{totalPayroll | number}} VND</strong>
+        <c-progress class="mt-2" thin color="danger" [value]="totalPayroll/1000000"></c-progress>
+      </c-col>
+
+    </c-row>
+
+  </c-card-footer>
+
+</c-card>
+
+
+
+<c-card class="mb-4">
+
+  <c-card-header>
+    Attendance Today
+  </c-card-header>
+
+  <c-card-body>
+
+    <h3>{{todayAttendance}} / {{totalEmployees}}</h3>
+
+    <c-progress
+      thin
+      color="success"
+      [value]="(todayAttendance / totalEmployees) * 100">
+    </c-progress>
+
+  </c-card-body>
+
+</c-card>
+
+
+
+<c-card>
+
+  <c-card-header>
+    Recent Employees
+  </c-card-header>
+
+  <c-card-body>
+
+    <table class="table table-striped">
+
+      <thead>
+        <tr>
+          <th>Mã Nhân Viên</th>
+          <th>Tên</th>
+          <th>Phòng</th>
+          <th>Chức Vụ</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let emp of employees">
+          <td>{{emp.employeeCode}}</td>
+          <td>{{emp.fullName}}</td>
+          <td>{{emp.departmentName}}</td>
+          <td>{{emp.positionName}}</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </c-card-body>
+
+</c-card>

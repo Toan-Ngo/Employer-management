@@ -47,6 +47,9 @@ namespace HRMS.Data.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -69,6 +72,13 @@ namespace HRMS.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -93,10 +103,10 @@ namespace HRMS.Data.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Attendance", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Attendance", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,7 +134,7 @@ namespace HRMS.Data.Migrations
                     b.ToTable("Attendances");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Contract", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Contract", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -159,7 +169,7 @@ namespace HRMS.Data.Migrations
                     b.ToTable("Contracts");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Department", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Department", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -177,7 +187,7 @@ namespace HRMS.Data.Migrations
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Employee", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -246,7 +256,7 @@ namespace HRMS.Data.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.LeaveRequest", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.LeaveRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -268,9 +278,8 @@ namespace HRMS.Data.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -279,25 +288,7 @@ namespace HRMS.Data.Migrations
                     b.ToTable("LeaveRequests");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Position", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("PositionName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Positions");
-                });
-
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Salary", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Payroll", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -314,6 +305,9 @@ namespace HRMS.Data.Migrations
                     b.Property<decimal>("LuongCoBan")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("LuongThucNhan")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("NgayTinhLuong")
                         .HasColumnType("datetime2");
 
@@ -328,6 +322,24 @@ namespace HRMS.Data.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("Salaries");
+                });
+
+            modelBuilder.Entity("HRMS.Core.Entities.Position", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PositionName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Positions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -354,7 +366,7 @@ namespace HRMS.Data.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -379,7 +391,7 @@ namespace HRMS.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("RoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -404,7 +416,7 @@ namespace HRMS.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -426,7 +438,7 @@ namespace HRMS.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("UserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -441,7 +453,7 @@ namespace HRMS.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -460,23 +472,23 @@ namespace HRMS.Data.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("UserTokens", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationUser", b =>
                 {
-                    b.HasOne("HRMS.Core.Domain.Entities.Employee", "Employee")
+                    b.HasOne("HRMS.Core.Entities.Employee", "Employee")
                         .WithOne()
                         .HasForeignKey("ApplicationUser", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Attendance", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Attendance", b =>
                 {
-                    b.HasOne("HRMS.Core.Domain.Entities.Employee", "Employee")
+                    b.HasOne("HRMS.Core.Entities.Employee", "Employee")
                         .WithMany("Attendances")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -485,9 +497,9 @@ namespace HRMS.Data.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Contract", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Contract", b =>
                 {
-                    b.HasOne("HRMS.Core.Domain.Entities.Employee", "Employee")
+                    b.HasOne("HRMS.Core.Entities.Employee", "Employee")
                         .WithMany("Contracts")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -496,15 +508,15 @@ namespace HRMS.Data.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Employee", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Employee", b =>
                 {
-                    b.HasOne("HRMS.Core.Domain.Entities.Department", "Department")
+                    b.HasOne("HRMS.Core.Entities.Department", "Department")
                         .WithMany("Employees")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HRMS.Core.Domain.Entities.Position", "Position")
+                    b.HasOne("HRMS.Core.Entities.Position", "Position")
                         .WithMany("Employees")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -515,9 +527,9 @@ namespace HRMS.Data.Migrations
                     b.Navigation("Position");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.LeaveRequest", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.LeaveRequest", b =>
                 {
-                    b.HasOne("HRMS.Core.Domain.Entities.Employee", "Employee")
+                    b.HasOne("HRMS.Core.Entities.Employee", "Employee")
                         .WithMany("LeaveRequests")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -526,9 +538,9 @@ namespace HRMS.Data.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Salary", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Payroll", b =>
                 {
-                    b.HasOne("HRMS.Core.Domain.Entities.Employee", "Employee")
+                    b.HasOne("HRMS.Core.Entities.Employee", "Employee")
                         .WithMany("Salaries")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -588,12 +600,12 @@ namespace HRMS.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Department", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Department", b =>
                 {
                     b.Navigation("Employees");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Employee", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Employee", b =>
                 {
                     b.Navigation("Attendances");
 
@@ -604,7 +616,7 @@ namespace HRMS.Data.Migrations
                     b.Navigation("Salaries");
                 });
 
-            modelBuilder.Entity("HRMS.Core.Domain.Entities.Position", b =>
+            modelBuilder.Entity("HRMS.Core.Entities.Position", b =>
                 {
                     b.Navigation("Employees");
                 });

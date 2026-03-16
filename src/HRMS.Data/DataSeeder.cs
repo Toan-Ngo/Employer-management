@@ -1,46 +1,56 @@
-﻿using HRMS.Core.Domain.Entities;
+﻿using HRMS.Core.Entities;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Data
 {
     public class DataSeeder
     {
-        public async Task SeedAsync(HRMSContext context)
-        {
-            var passwordHasher = new PasswordHasher<ApplicationUser>();
+        private readonly HRMSContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
+        public DataSeeder(
+            HRMSContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
+        {
+            _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        public async Task SeedAsync()
+        {
             // Department
-            if (!context.Departments.Any())
+            if (!await _context.Departments.AnyAsync())
             {
-                await context.Departments.AddAsync(new Department
+                await _context.Departments.AddAsync(new Department
                 {
                     DepartmentName = "Administration"
                 });
-                await context.SaveChangesAsync();
+
+                await _context.SaveChangesAsync();
             }
 
             // Position
-            if (!context.Positions.Any())
+            if (!await _context.Positions.AnyAsync())
             {
-                await context.Positions.AddAsync(new Position
+                await _context.Positions.AddAsync(new Position
                 {
                     PositionName = "Administrator"
                 });
-                await context.SaveChangesAsync();
+
+                await _context.SaveChangesAsync();
             }
 
             // Employee
-            if (!context.Employees.Any())
+            if (!await _context.Employees.AnyAsync())
             {
-                var department = context.Departments.First();
-                var position = context.Positions.First();
+                var department = await _context.Departments.FirstAsync();
+                var position = await _context.Positions.FirstAsync();
 
-                await context.Employees.AddAsync(new Employee
+                await _context.Employees.AddAsync(new Employee
                 {
                     EmployeeCode = "EMP001",
                     FirstName = "Root",
@@ -55,54 +65,43 @@ namespace HRMS.Data
                     IsActive = true
                 });
 
-                await context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+            }
+            //  Role
+            string[] roles = { "RootAdmin", "HR", "Manager" }; 
+            foreach (var role in roles) { 
+                if (!await _roleManager.RoleExistsAsync(role)) 
+                { 
+                    await _roleManager.CreateAsync(new IdentityRole(role)); 
+                } 
             }
 
-            var employee = context.Employees.First();
+            var employee = await _context.Employees.FirstAsync();
 
-            // Role
-            if (!context.Roles.Any())
-            {
-                await context.Roles.AddAsync(new IdentityRole
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "RootAdmin",
-                    NormalizedName = "ROOTADMIN"
-                });
-
-                await context.SaveChangesAsync();
-            }
-
-            var role = context.Roles.First();
+            
+            
 
             // User
-            if (!context.Users.Any())
+            var user = await _userManager.FindByNameAsync("rootadmin");
+
+            if (user == null)
             {
-                var user = new ApplicationUser
+                user = new ApplicationUser
                 {
-                    Id = Guid.NewGuid().ToString(),
                     UserName = "rootadmin",
-                    NormalizedUserName = "ROOTADMIN",
                     Email = "admin@gmail.com",
-                    NormalizedEmail = "ADMIN@GMAIL.COM",
                     EmployeeId = employee.Id,
                     CreatedAt = DateTime.Now,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    LockoutEnabled = false
+                    IsActive = true,
+                    RefreshToken = ""
                 };
 
-                user.PasswordHash = passwordHasher.HashPassword(user, "Admin@123");
+                var result = await _userManager.CreateAsync(user, "Admin@123");
 
-                await context.Users.AddAsync(user);
-                await context.SaveChangesAsync();
-
-                await context.UserRoles.AddAsync(new IdentityUserRole<string>
+                if (result.Succeeded)
                 {
-                    UserId = user.Id,
-                    RoleId = role.Id
-                });
-
-                await context.SaveChangesAsync();
+                    await _userManager.AddToRoleAsync(user, "RootAdmin");
+                }
             }
         }
     }

@@ -1,0 +1,11 @@
+﻿namespace HRMS.Core.DTOs
+{
+    public class CreateAccountDto
+    {
+        public string Email { get; set; }
+        public string User { get; set; }
+        public string Password { get; set; }
+
+    }
+}
+
