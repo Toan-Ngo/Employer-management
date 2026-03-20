@@ -33,7 +33,7 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(new { message = "Tạo chức vụ thành công" });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdatePosition(int id, PositionDto dto)

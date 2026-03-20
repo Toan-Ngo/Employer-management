@@ -2,6 +2,7 @@
 using HRMS.Core.Entities;
 using HRMS.Core.Interfaces.Admin;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace HRMS.Data.Services.Admin
 {
@@ -34,14 +35,22 @@ namespace HRMS.Data.Services.Admin
         public async Task<string> GenerateEmployeeCode()
         {
             var lastEmployee = await _context.Employees
-                .OrderByDescending(e => e.Id)
+                .OrderByDescending(e => e.Id) 
                 .FirstOrDefaultAsync();
 
-            if (lastEmployee == null)
+            if (lastEmployee == null || string.IsNullOrEmpty(lastEmployee.EmployeeCode))
                 return "NV001";
 
-            var lastNumber = int.Parse(lastEmployee.EmployeeCode.Substring(2));
-            return "NV" + (lastNumber + 1).ToString("D3");
+            // Dùng Regex để chỉ lấy phần số ở cuối chuỗi
+            var match = Regex.Match(lastEmployee.EmployeeCode, @"\d+");
+
+            if (match.Success)
+            {
+                int lastNumber = int.Parse(match.Value);
+                return "NV" + (lastNumber + 1).ToString("D3");
+            }
+
+            return "NV001"; // Dự phòng nếu không tìm thấy số trong mã cũ
         }
         public async Task<Employee> GetEmployee(string EmployeeCode)
         {

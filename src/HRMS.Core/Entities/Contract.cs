@@ -19,5 +19,7 @@ namespace HRMS.Core.Entities
         [Required]
         public string ContractName { get; set; } // Tên hợp đồng ( Hợp đồng lao động, Hợp đồng thử việc, v.v.)
         public Decimal Salary { get; set; } // Mức lương theo hợp đồng
+        [Required]
+        public string Status { get; set; } = "Hiệu lực";
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PositionApiClient, PositionDto } from '../../api/admin-api.service.generated';
@@ -24,6 +24,7 @@ export class PositionsComponent implements OnInit {
   currentId: number | null = null;
   posForm!: FormGroup;
 
+  private cdr = inject(ChangeDetectorRef);
   private posApi = inject(PositionApiClient);
   private fb = inject(FormBuilder);
 
@@ -36,12 +37,18 @@ export class PositionsComponent implements OnInit {
 
   loadPositions() {
     this.isLoading = true;
+    this.cdr.detectChanges(); // Hiện Spinner ngay lập tức
+
     this.posApi.getPositions().subscribe({
       next: (data) => {
         this.positions = data;
         this.isLoading = false;
+        this.cdr.detectChanges(); // 3. Ép giao diện vẽ lại danh sách và ẩn Spinner
       },
-      error: () => this.isLoading = false
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges(); // Ẩn Spinner kể cả khi lỗi
+      }
     });
   }
 
@@ -55,18 +62,39 @@ export class PositionsComponent implements OnInit {
   onSubmit() {
     if (this.posForm.invalid) return;
     const name = this.posForm.value.positionName;
+    this.isLoading = true;
 
     if (this.isEditMode && this.currentId) {
-      this.posApi.updatePosition(this.currentId, name).subscribe({
-        next: () => this.handleSuccess(),
-        error: () => alert('Cập nhật thất bại!')
+      // 1. Tạo DTO để gửi đi (Đảm bảo khớp với yêu cầu của Backend)
+      const updateDto = new PositionDto();
+      updateDto.id = this.currentId;
+      updateDto.positionName = name;
+
+      // 2. Gọi API với ID trên URL và DTO trong Body
+      this.posApi.updatePosition(this.currentId, updateDto).subscribe({
+        next: () => {
+          alert('Cập nhật chức vụ thành công!');
+          this.handleSuccess();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Lỗi cập nhật:', err);
+          alert('Cập nhật thất bại. Vui lòng kiểm tra lại!');
+        }
       });
     } else {
+      // Tạo mới (Phần này thường đã chạy đúng)
       const dto = new PositionDto();
       dto.positionName = name;
       this.posApi.createPosition(dto).subscribe({
-        next: () => this.handleSuccess(),
-        error: () => alert('Tạo mới thất bại!')
+        next: () => {
+          alert('Tạo chức vụ mới thành công!');
+          this.handleSuccess();
+        },
+        error: () => {
+          this.isLoading = false;
+          alert('Tạo mới thất bại!');
+        }
       });
     }
   }

@@ -12,8 +12,9 @@
         <c-row class="mb-3 g-2">
           <c-col md="4" sm="12">
             <input cFormControl type="text" placeholder="Mã NV hoặc Họ tên..." [(ngModel)]="searchTerm"
-              (keyup.enter)="search()" />
+              (input)="search()" (keyup.enter)="search()" />
           </c-col>
+
           <c-col md="3" sm="6">
             <select cSelect [(ngModel)]="selectedDepartment" (ngModelChange)="search()">
               <option value="">-- Tất cả phòng ban --</option>
@@ -22,8 +23,9 @@
               }
             </select>
           </c-col>
+
           <c-col md="2" sm="6">
-            <button cButton color="info" variant="outline" class="w-100" (click)="search()">
+            <button cButton color="info" variant="outline" class="w-100" type="button" (click)="search()">
               Tìm kiếm
             </button>
           </c-col>
@@ -105,8 +107,7 @@
       <c-row class="mb-3">
         <c-col md="6">
           <label cLabel>Họ <span class="text-danger">*</span></label>
-          <input cFormControl formControlName="firstName" placeholder="Nguyễn Văn"
-            [valid]="employeeForm.get('firstName')?.valid" />
+          <input cFormControl formControlName="firstName" placeholder="Nguyễn Văn" />
         </c-col>
         <c-col md="6">
           <label cLabel>Tên <span class="text-danger">*</span></label>

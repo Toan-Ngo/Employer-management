@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import {
@@ -39,7 +39,7 @@ import {
 export class EmployeesComponent implements OnInit {
   employees: EmployeeDto[] = [];
   allEmployees: EmployeeDto[] = [];
-  departments: DepartmentDto[] = []; 
+  departments: DepartmentDto[] = [];
   positions: PositionDto[] = [];
 
   isLoading = false;
@@ -51,6 +51,7 @@ export class EmployeesComponent implements OnInit {
   currentEmployeeCode = '';
   employeeForm!: FormGroup;
 
+  private cdr = inject(ChangeDetectorRef);
   private employeeApi = inject(EmployeeApiClient);
   private departmentApi = inject(DepartmentApiClient);
   private positionApi = inject(PositionApiClient);
@@ -73,7 +74,7 @@ export class EmployeesComponent implements OnInit {
       gender: [0, Validators.required],
       address: [''],
       departmentName: ['', Validators.required],
-      positionName: ['', Validators.required] 
+      positionName: ['', Validators.required]
     });
   }
 
@@ -85,23 +86,37 @@ export class EmployeesComponent implements OnInit {
   }
 
   loadDepartments() {
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
     this.departmentApi.getDepartments().subscribe({
-      next: (data) => this.departments = data,
-      error: (err) => console.error('Lỗi tải phòng ban:', err)
+      next: (data) => {
+        this.departments = data;
+        this.isLoading = false;
+
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Lỗi tải phòng ban:', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
-
   loadEmployees() {
     this.isLoading = true;
     this.employeeApi.getEmployees().subscribe({
-      next: (data: EmployeeDto[]) => {
+      next: (data) => {
         this.allEmployees = data;
         this.employees = [...this.allEmployees];
         this.isLoading = false;
+        this.employees = data.filter(emp => emp.isActive === true);
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Lỗi khi tải danh sách:', err);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -128,7 +143,7 @@ export class EmployeesComponent implements OnInit {
 
   openEditModal(emp: EmployeeDto) {
     this.isEditMode = true;
-    this.currentEmployeeCode = emp.employeeCode ?? ''; 
+    this.currentEmployeeCode = emp.employeeCode ?? '';
 
     const nameParts = (emp.fullName ?? '').split(' ');
     this.employeeForm.patchValue({
@@ -158,16 +173,26 @@ export class EmployeesComponent implements OnInit {
     this.isLoading = true;
 
     if (this.isEditMode) {
-      const updateDto = new UpdateEmployeeDto();
-      updateDto.employeeCode = this.currentEmployeeCode;
-      updateDto.departmentName = formValue.departmentName;
-      updateDto.positionName = formValue.positionName;
+      // Thay vì khởi tạo class rỗng, hãy tạo object literal để đảm bảo thuộc tính tồn tại
+      const updateDto: UpdateEmployeeDto = {
+        employeeCode: this.currentEmployeeCode, // Đây là mã lấy từ dòng bạn đã chọn
+        departmentName: formValue.departmentName,
+        positionName: formValue.positionName
+      } as UpdateEmployeeDto;
+
+      // Log ra để kiểm tra chắc chắn trước khi gọi API
+      console.log('Payload gửi đi:', updateDto);
 
       this.employeeApi.updateEmployee(updateDto).subscribe({
-        next: () => this.finishSubmit(),
-        error: () => {
+        next: () => {
+          alert('Cập nhật thành công!');
+          this.finishSubmit();
+        },
+        error: (err) => {
           this.isLoading = false;
-          alert('Cập nhật thất bại.');
+          // In chi tiết lỗi từ Server trả về để debug nếu vẫn lỗi 400
+          console.error('Lỗi chi tiết từ Server:', err);
+          alert('Cập nhật thất bại. Vui lòng kiểm tra lại mã nhân viên.');
         }
       });
     } else {

@@ -55,7 +55,8 @@ export class WorkForceOverviewService {
         const salariesData = result.salaries || [];
         const attendanceData = result.attendance || [];
 
-        const totalEmployees = employeesData.length;
+        const activeEmployees = employeesData.filter((emp: any) => emp.isActive === true);
+        const totalEmployees = activeEmployees.length;
         const totalDepartments = departmentsData.length;
         const totalLeaves = leavesData.length;
         const totalPayroll = salariesData.reduce((sum: number, s: any) => sum + (s?.amount || 0), 0);

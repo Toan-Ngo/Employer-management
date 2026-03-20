@@ -787,7 +787,7 @@ export class ContractApiClient {
     /**
      * @return OK
      */
-    getContracts(): Observable<CreateContractDto[]> {
+    getContracts(): Observable<ContractDto[]> {
         let url_ = this.baseUrl + "/api/admin/contract";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -806,14 +806,14 @@ export class ContractApiClient {
                 try {
                     return this.processGetContracts(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CreateContractDto[]>;
+                    return _observableThrow(e) as any as Observable<ContractDto[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CreateContractDto[]>;
+                return _observableThrow(response_) as any as Observable<ContractDto[]>;
         }));
     }
 
-    protected processGetContracts(response: HttpResponseBase): Observable<CreateContractDto[]> {
+    protected processGetContracts(response: HttpResponseBase): Observable<ContractDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -827,7 +827,7 @@ export class ContractApiClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(CreateContractDto.fromJS(item));
+                    result200!.push(ContractDto.fromJS(item));
             }
             else {
                 result200 = null as any;
@@ -886,13 +886,6 @@ export class ContractApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
             }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -904,7 +897,7 @@ export class ContractApiClient {
     /**
      * @return OK
      */
-    getContract(id: number): Observable<CreateContractDto> {
+    getContract(id: number): Observable<ContractDto> {
         let url_ = this.baseUrl + "/api/admin/contract/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -926,14 +919,14 @@ export class ContractApiClient {
                 try {
                     return this.processGetContract(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CreateContractDto>;
+                    return _observableThrow(e) as any as Observable<ContractDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CreateContractDto>;
+                return _observableThrow(response_) as any as Observable<ContractDto>;
         }));
     }
 
-    protected processGetContract(response: HttpResponseBase): Observable<CreateContractDto> {
+    protected processGetContract(response: HttpResponseBase): Observable<ContractDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -944,15 +937,8 @@ export class ContractApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CreateContractDto.fromJS(resultData200);
+            result200 = ContractDto.fromJS(resultData200);
             return _observableOf(result200);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1003,13 +989,6 @@ export class ContractApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1065,13 +1044,6 @@ export class ContractApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1640,68 +1612,6 @@ export class EmployeeApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return OK
-     */
-    updateEmployee2(employeeCode: string | null, body?: UpdateEmployeeDto | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/admin/employee/{employeeCode}";
-        if (employeeCode === undefined || employeeCode === null)
-            throw new globalThis.Error("The parameter 'employeeCode' must be defined.");
-        url_ = url_.replace("{employeeCode}", encodeURIComponent("" + employeeCode));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateEmployee2(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdateEmployee2(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processUpdateEmployee2(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * @return OK
      */
     deleteEmployee(employeeCode: string | null): Observable<void> {
@@ -2214,14 +2124,16 @@ export class PositionApiClient {
     }
 
     /**
+     * @param id (optional) 
      * @param body (optional) 
      * @return OK
      */
-    updatePosition(id: number, body?: PositionDto | undefined): Observable<string> {
-        let url_ = this.baseUrl + "/api/admin/position/{id}";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    updatePosition(id?: number | undefined, body?: PositionDto | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/admin/position?";
+        if (id === null)
+            throw new globalThis.Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -2816,6 +2728,74 @@ export interface IAuthenticatedResult {
     permissions?: string[] | undefined;
 }
 
+export class ContractDto implements IContractDto {
+    id?: number;
+    employeeCode?: string | undefined;
+    fullName?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    contractType?: string | undefined;
+    contractName?: string | undefined;
+    salary?: number;
+    status?: string | undefined;
+
+    constructor(data?: IContractDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.employeeCode = _data["employeeCode"];
+            this.fullName = _data["fullName"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : undefined as any;
+            this.contractType = _data["contractType"];
+            this.contractName = _data["contractName"];
+            this.salary = _data["salary"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): ContractDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContractDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["employeeCode"] = this.employeeCode;
+        data["fullName"] = this.fullName;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : undefined as any;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : undefined as any;
+        data["contractType"] = this.contractType;
+        data["contractName"] = this.contractName;
+        data["salary"] = this.salary;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IContractDto {
+    id?: number;
+    employeeCode?: string | undefined;
+    fullName?: string | undefined;
+    startDate?: Date;
+    endDate?: Date;
+    contractType?: string | undefined;
+    contractName?: string | undefined;
+    salary?: number;
+    status?: string | undefined;
+}
+
 export class CreateAccountDto implements ICreateAccountDto {
     email?: string | undefined;
     user?: string | undefined;
@@ -2867,6 +2847,7 @@ export class CreateContractDto implements ICreateContractDto {
     contractType?: string | undefined;
     contractName?: string | undefined;
     salary?: number;
+    status?: string | undefined;
 
     constructor(data?: ICreateContractDto) {
         if (data) {
@@ -2885,6 +2866,7 @@ export class CreateContractDto implements ICreateContractDto {
             this.contractType = _data["contractType"];
             this.contractName = _data["contractName"];
             this.salary = _data["salary"];
+            this.status = _data["status"];
         }
     }
 
@@ -2903,6 +2885,7 @@ export class CreateContractDto implements ICreateContractDto {
         data["contractType"] = this.contractType;
         data["contractName"] = this.contractName;
         data["salary"] = this.salary;
+        data["status"] = this.status;
         return data;
     }
 }
@@ -2914,6 +2897,7 @@ export interface ICreateContractDto {
     contractType?: string | undefined;
     contractName?: string | undefined;
     salary?: number;
+    status?: string | undefined;
 }
 
 export class CreateEmployeeDto implements ICreateEmployeeDto {

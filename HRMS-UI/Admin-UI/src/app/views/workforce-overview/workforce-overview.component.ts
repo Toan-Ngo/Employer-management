@@ -1,16 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { WorkForceOverviewService } from './workforce-overview.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { NgClass } from '@angular/common';
 import {
-  CardComponent,
-  CardBodyComponent,
-  CardHeaderComponent,
-  CardFooterComponent,
-  ProgressComponent,
-  RowComponent,
-  ColComponent
+  CardModule, GridModule, ProgressModule, TableModule, BadgeModule, SpinnerModule, WidgetModule,
+  BadgeComponent
 } from '@coreui/angular';
+import { IconModule, IconSetService } from '@coreui/icons-angular';
+import { cilPeople, cilHome, cilTask, cilMoney, cilUserPlus } from '@coreui/icons';
 
 @Component({
   selector: 'app-workforce-overview',
@@ -18,39 +15,53 @@ import {
   styleUrls: ['./workforce-overview.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,       // cho *ngFor, *ngIf, date pipe
-    NgClass,            // cho [ngClass]
-    DatePipe,
-    CardComponent,
-    CardBodyComponent,
-    CardHeaderComponent,
-    CardFooterComponent,
-    ProgressComponent,
-    RowComponent,
-    ColComponent
+    CommonModule, NgClass, DatePipe, DecimalPipe,
+    CardModule, GridModule, ProgressModule, TableModule, 
+    BadgeModule, SpinnerModule, WidgetModule, IconModule,BadgeComponent
   ],
+  providers: [IconSetService]
 })
 export class WorkForceOverviewComponent implements OnInit {
+  // Dữ liệu dashboard
+  data: any = {
+    totalEmployees: 0,
+    totalDepartments: 0,
+    totalLeaves: 0,
+    totalPayroll: 0,
+    todayAttendance: 0,
+    attendanceRate: 0,
+    employees: []
+  };
 
-  totalEmployees = 0;
-  totalDepartments = 0;
-  totalLeaves = 0;
-  totalPayroll = 0;
-  todayAttendance = 0;
-  attendanceRate = 0;
-  employees: any[] = [];
+  isLoading = true;
 
-  constructor(private dashboardService: WorkForceOverviewService) { }
+  private dashboardService = inject(WorkForceOverviewService);
+  private cdr = inject(ChangeDetectorRef);
+  public iconSet = inject(IconSetService);
+
+  constructor() {
+    // Đăng ký icon
+    this.iconSet.icons = { cilPeople, cilHome, cilTask, cilMoney, cilUserPlus };
+  }
 
   ngOnInit(): void {
-    this.dashboardService.getDashboard().subscribe(data => {
-      this.totalEmployees = data.totalEmployees;
-      this.totalDepartments = data.totalDepartments;
-      this.totalLeaves = data.totalLeaves;
-      this.totalPayroll = data.totalPayroll;
-      this.todayAttendance = data.todayAttendance;
-      this.attendanceRate = data.attendanceRate;
-      this.employees = data.employees;
+    this.loadDashboard();
+  }
+
+  loadDashboard() {
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    this.dashboardService.getDashboard().subscribe({
+      next: (res) => {
+        this.data = res;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 }

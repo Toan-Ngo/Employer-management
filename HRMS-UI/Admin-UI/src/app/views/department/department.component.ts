@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -27,6 +27,7 @@ export class DepartmentComponent implements OnInit {
   currentId: number | null = null;
   deptForm!: FormGroup;
 
+  private cdr = inject(ChangeDetectorRef);
   private deptApi = inject(DepartmentApiClient);
   private fb = inject(FormBuilder);
 
@@ -43,14 +44,18 @@ export class DepartmentComponent implements OnInit {
 
   loadDepartments() {
     this.isLoading = true;
+    this.cdr.detectChanges(); // Hiện Spinner ngay lập tức
+
     this.deptApi.getDepartments().subscribe({
       next: (data) => {
         this.departments = data;
         this.isLoading = false;
+        this.cdr.detectChanges(); // Ép vẽ lại danh sách phòng ban
       },
       error: (err) => {
         console.error('Lỗi tải phòng ban:', err);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -78,18 +83,21 @@ export class DepartmentComponent implements OnInit {
     this.isLoading = true;
 
     if (this.isEditMode && this.currentId) {
-      // Gọi API Update (khớp với Backend: Task<bool> UpdateDepartment(int id, string newName))
-      this.deptApi.updateDepartment(this.currentId, name).subscribe({
-        next: () => this.handleSuccess('Cập nhật thành công'),
-        error: () => this.handleError()
-      });
-    } else {
-      // Gọi API Create
-      const newDept = new DepartmentDto();
-      newDept.departmentName = name;
-      this.deptApi.createDepartment(newDept).subscribe({
-        next: () => this.handleSuccess('Thêm mới thành công'),
-        error: () => this.handleError()
+      // 1. Tạo object DTO đúng cấu trúc Backend mong đợi
+      const updateDto = new DepartmentDto();
+      updateDto.id = this.currentId;
+      updateDto.departmentName = name;
+
+      // 2. Truyền ID và Object DTO vào hàm (NSwag thường gen 2 tham số này)
+      this.deptApi.updateDepartment(this.currentId, updateDto).subscribe({
+        next: () => {
+          alert('Cập nhật thành công');
+          this.handleSuccess('Cập nhật thành công');
+        },
+        error: (err) => {
+          console.error('Lỗi chi tiết:', err);
+          this.handleError();
+        }
       });
     }
   }

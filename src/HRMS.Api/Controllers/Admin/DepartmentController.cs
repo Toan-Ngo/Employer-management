@@ -52,13 +52,13 @@ namespace HRMS.Api.Controllers.AdminApi
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateDepartment(int id, [FromBody] DepartmentDto dto)
+        public async Task<IActionResult> UpdateDepartment(int id, [FromBody] DepartmentDto departmentDto)
         {
-            // dto.DepartmentName là tên mới bạn nhập từ Form
-            var success = await _departmentService.UpdateDepartment(id, dto.DepartmentName);
+            // Đảm bảo truyền đúng giá trị vào Service
+            var success = await _departmentService.UpdateDepartment(id, departmentDto.DepartmentName);
 
             if (!success)
-                return BadRequest(new { message = "Cập nhật thất bại hoặc tên phòng đã tồn tại" });
+                return BadRequest(new { message = "Cập nhật thất bại" });
 
             return Ok(new { message = "Cập nhật thành công" });
         }

@@ -49,14 +49,11 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(new { message = "Tạo thành công" });
         }
 
-        [HttpPut("{employeeCode}")]
+        [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPut]
-        public async Task<IActionResult> UpdateEmployee(string employeeCode, [FromBody] UpdateEmployeeDto dto)
+        public async Task<IActionResult> UpdateEmployee([FromBody] UpdateEmployeeDto dto)
         {
-            // Đảm bảo employeeCode đồng nhất
-            dto.EmployeeCode = employeeCode;
             var success = await _employeeService.UpdateEmployee(dto);
 
             if (!success)
