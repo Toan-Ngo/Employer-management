@@ -15,16 +15,17 @@ namespace HRMS.Api.Controllers.AdminApi
             _employeeService = employeeService;
         }
 
-        // Lấy danh sách nhân viên
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<EmployeeDto>), StatusCodes.Status200OK)] // Sửa lại thành DTO hiển thị danh sách nhân viên
         public async Task<IActionResult> GetEmployees()
         {
             var employees = await _employeeService.GetEmployees();
             return Ok(employees);
         }
 
-        // Lấy nhân viên theo mã
         [HttpGet("{EmployeeCode}")]
+        [ProducesResponseType(typeof(EmployeeDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetEmployee(string EmployeeCode)
         {
             var employee = await _employeeService.GetEmployee(EmployeeCode);
@@ -35,8 +36,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(employee);
         }
 
-        // Tạo nhân viên
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeDto dto)
         {
             var employee = await _employeeService.CreateEmployee(dto);
@@ -47,23 +49,28 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(new { message = "Tạo thành công" });
         }
 
-        // Cập nhật nhân viên
-        [HttpPut("{employeeId}")]
-        public async Task<IActionResult> UpdateEmployee(string employeeId, [FromBody] UpdateEmployeeDto dto)
+        [HttpPut("{employeeCode}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPut]
+        public async Task<IActionResult> UpdateEmployee(string employeeCode, [FromBody] UpdateEmployeeDto dto)
         {
-            var employee = await _employeeService.UpdateEmployee(employeeId, dto);
+            // Đảm bảo employeeCode đồng nhất
+            dto.EmployeeCode = employeeCode;
+            var success = await _employeeService.UpdateEmployee(dto);
 
-            if (!employee)
+            if (!success)
                 return BadRequest(new { message = "Cập nhật không thành công" });
 
             return Ok(new { message = "Cập nhật thành công" });
         }
 
-        // Xóa nhân viên
-        [HttpDelete("{employeeId}")]
-        public async Task<IActionResult> DeleteEmployee(string employeeId)
+        [HttpDelete("{employeeCode}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteEmployee(string employeeCode)
         {
-            var employee = await _employeeService.DeleteEmployee(employeeId);
+            var employee = await _employeeService.DeleteEmployee(employeeCode);
 
             if (!employee)
                 return BadRequest(new { message = "Xóa không thành công" });

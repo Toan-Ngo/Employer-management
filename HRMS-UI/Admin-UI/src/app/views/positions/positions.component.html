@@ -1,1 +1,69 @@
-<p>positions works!</p>
+<c-row>
+    <c-col xs="12" class="mb-4 d-flex justify-content-between align-items-center">
+        <h4>🎖️ Quản lý Chức vụ & Phân bổ nhân sự</h4>
+        <button cButton color="success" (click)="openModal()">+ Thêm chức vụ mới</button>
+    </c-col>
+
+    @if (isLoading && positions.length === 0) {
+    <div class="text-center w-100"><c-spinner color="success"></c-spinner></div>
+    }
+
+    @for (pos of positions; track pos.id) {
+    <c-col xs="12" md="6" lg="4" class="mb-4">
+        <c-card class="h-100 shadow-sm border-top-success border-top-3">
+            <c-card-header class="d-flex justify-content-between align-items-center bg-white py-3">
+                <strong class="text-uppercase">{{ pos.positionName }}</strong>
+                <c-badge color="dark" shape="rounded-pill">{{ pos.employees?.length || 0 }}</c-badge>
+            </c-card-header>
+
+            <c-card-body class="p-0">
+                <table cTable [hover]="true" size="sm" class="mb-0">
+                    <thead cTableColor="light">
+                        <tr>
+                            <th class="ps-3">Họ Tên</th>
+                            <th>Phòng ban</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (emp of pos.employees; track emp.employeeCode) {
+                        <tr>
+                            <td class="ps-3"><strong>{{ emp.fullName }}</strong></td>
+                            <td><small class="text-muted">{{ emp.departmentName }}</small></td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="2" class="text-center py-4 text-muted small italic">Chưa có nhân sự giữ chức vụ
+                                này.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </c-card-body>
+
+            <c-card-footer class="bg-white border-0 text-end">
+                <button cButton color="info" variant="ghost" size="sm" (click)="openModal(pos)">Sửa</button>
+                <button cButton color="danger" variant="ghost" size="sm" (click)="deletePos(pos.id!)">Xóa</button>
+            </c-card-footer>
+        </c-card>
+    </c-col>
+    }
+</c-row>
+
+<c-modal [visible]="visible" (visibleChange)="visible = $event">
+    <c-modal-header>
+        <h5 cModalTitle>{{ isEditMode ? 'Cập nhật Chức vụ' : 'Thêm Chức vụ mới' }}</h5>
+    </c-modal-header>
+    <form [formGroup]="posForm" (ngSubmit)="onSubmit()">
+        <c-modal-body>
+            <div class="mb-3">
+                <label cLabel for="posName">Tên chức vụ</label>
+                <input cFormControl id="posName" formControlName="positionName"
+                    placeholder="VD: Trưởng phòng, Developer..." />
+            </div>
+        </c-modal-body>
+        <c-modal-footer>
+            <button (click)="visible = false" cButton color="secondary">Hủy</button>
+            <button cButton color="success" type="submit" [disabled]="isLoading">Lưu lại</button>
+        </c-modal-footer>
+    </form>
+</c-modal>

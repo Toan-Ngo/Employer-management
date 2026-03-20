@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'  
+})
 export class AlertService {
   constructor(private messageService: MessageService) {}
   showSuccess(message: string) {
@@ -12,6 +14,6 @@ export class AlertService {
     });
   }
   showError(err: string) {
-    this.messageService.add({ severity: 'Error', summary: 'Lỗi', detail: err });
+    this.messageService.add({ severity: 'error', summary: 'Lỗi', detail: err });
   }
 }

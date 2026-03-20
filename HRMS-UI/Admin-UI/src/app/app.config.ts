@@ -1,9 +1,16 @@
 import {
+  AccountApiClient,
   ADMIN_API_BASE_URL,
+  AttendanceApiClient,
   AuthApiClient,
+  ContractApiClient,
+  DepartmentApiClient,
+  EmployeeApiClient,
+  LeaveRequestApiClient,
+  PositionApiClient,
+  SalaryApiClient,
 } from './api/admin-api.service.generated';
 import { ApplicationConfig } from '@angular/core';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 
@@ -21,9 +28,26 @@ import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 import { AlertService } from './shared/service/alert.service';
 
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { TokenStorageService } from './shared/service/token-storage.service';
+import { ToastModule } from '@coreui/angular';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ADMIN_API_BASE_URL, useValue: environment.API_URL },
+    provideAnimations(),
+    // backend api
+    EmployeeApiClient,
+    DepartmentApiClient,
+    LeaveRequestApiClient,
+    SalaryApiClient,
+    AttendanceApiClient,
+    AuthApiClient,
+    ContractApiClient,
+    PositionApiClient,
+    AccountApiClient,
+    
+
 
     provideRouter(
       routes,
@@ -39,12 +63,14 @@ export const appConfig: ApplicationConfig = {
       withHashLocation(),
     ),
 
-    provideAnimationsAsync(),
     provideHttpClient(),
 
-    AuthApiClient,
     IconSetService,
     MessageService,
     AlertService,
+    ToastModule,
+
+    // 
+    TokenStorageService
   ],
 };

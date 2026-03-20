@@ -15,16 +15,17 @@ namespace HRMS.Api.Controllers.AdminApi
             _contractService = contractService;
         }
 
-        // Lấy danh sách hợp đồng
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<CreateContractDto>), StatusCodes.Status200OK)] // Cần có ContractDto
         public async Task<IActionResult> GetContracts()
         {
             var contracts = await _contractService.GetContracts();
             return Ok(contracts);
         }
 
-        // Lấy hợp đồng theo ID
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CreateContractDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetContract(int id)
         {
             var contract = await _contractService.GetContractById(id);
@@ -35,8 +36,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(contract);
         }
 
-        // Tạo hợp đồng
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateContract([FromBody] CreateContractDto dto)
         {
             var newContract = await _contractService.CreateContract(dto);
@@ -47,8 +49,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(new { message = "Tạo hợp đồng thành công" });
         }
 
-        // Gia hạn / cập nhật hợp đồng
         [HttpPut("{contractId}/extend")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateContract(int contractId, [FromBody] UpdateContractDto dto)
         {
             var contract = await _contractService.UpdateContract(contractId, dto);
@@ -59,8 +62,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(new { message = "Cập nhật hợp đồng thành công" });
         }
 
-        // Xóa hợp đồng
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteContract(int id)
         {
             var deleteContract = await _contractService.DeleteContract(id);

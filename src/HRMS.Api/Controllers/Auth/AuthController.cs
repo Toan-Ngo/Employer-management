@@ -3,12 +3,14 @@ using HRMS.Core.Auth;
 using HRMS.Core.DTOs;
 using HRMS.Core.Interfaces.Auth;
 using HRMS.Core.RBAC;
+using HRMS.Data.SeedWorks.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace HRMS.Api.Controllers.Auth
 {
@@ -53,14 +55,23 @@ namespace HRMS.Api.Controllers.Auth
 
             var claims = new List<Claim>
 {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
                 new Claim(ClaimTypes.Name, user.UserName ?? ""),
-                new Claim("employeeId", user.EmployeeId.ToString())
+                new Claim(UserClaims.Id, user.Id),
+                new Claim(UserClaims.FirstName, user.Employee?.FirstName ?? ""),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            // Add roles
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            // Add permissions
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("Permission", permission));
             }
 
             var accessToken = _tokenService.GenerateAccessToken(claims);
@@ -73,7 +84,8 @@ namespace HRMS.Api.Controllers.Auth
             return Ok(new AuthenticatedResult()
             {
                 Token = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                Permissions = permissions
             });
         }
         private async Task<List<string>> GetPermissionsByUserIdAsync(string userId)

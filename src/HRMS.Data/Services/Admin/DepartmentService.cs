@@ -7,70 +7,81 @@ namespace HRMS.Data.Services.Admin
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly HRMSContext _context; // sử dụng HRMSContext để tương tác với cơ sở dữ liệu
-        private readonly IUnitOfWork _unitOfWork; // sử dụng IUnitOfWork để quản lý giao dịch
+        private readonly HRMSContext _context;
+        private readonly IUnitOfWork _unitOfWork;
+
         public DepartmentService(HRMSContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
             _unitOfWork = unitOfWork;
         }
-        public async Task<bool> CreateDepartment(DepartmentDto dto)
-        {
-            var existingDepartment = await _context.Departments
-                    .FirstOrDefaultAsync(d => d.DepartmentName.ToLower().Trim()
-                    == dto.DepartmentName.ToLower().Trim());
-            if (existingDepartment != null)
-                return false; // Trả về false nếu đã tồn tại phòng ban với tên này
-            var newDepartment = new Department
-            {
-                DepartmentName = dto.DepartmentName.Trim()
-            };
-            await _context.Departments.AddAsync(newDepartment);
-            return await _unitOfWork.SaveChangesAsync() > 0; // Trả về true nếu thêm thành công
-        }
-
-        public async Task<bool> DeleteDepartment(string departmentName)
-        {
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DepartmentName.ToLower().Trim()
-                                                                                    == departmentName.ToLower().Trim());
-            if (department == null)
-                return false; // Trả về false nếu không tìm thấy phòng ban
-            _context.Departments.Remove(department);
-            return await _unitOfWork.SaveChangesAsync() > 0; // Trả về true nếu xóa thành công
-        }
 
         public async Task<List<DepartmentDto>> GetDepartments()
         {
-            return await _context.Employees
-             .Include(e => e.Department)
-             .Select(e => new DepartmentDto
-             {
-                 EmployeeCode = e.EmployeeCode,
-                 FullName = e.FirstName + " " + e.LastName,
-                 DepartmentName = e.Department.DepartmentName
-             })
-             .ToListAsync();
-        }
-
-        public async Task<Department?> GetDepartment(string departmentName)
-        {
-            var name = departmentName.Trim().ToLower();
-
             return await _context.Departments
-                .Include(d => d.Employees) // lấy tất cả nhân viên trong phòng ban
-                .FirstOrDefaultAsync(d => d.DepartmentName.ToLower() == name);
+                .Include(d => d.Employees)
+                    .ThenInclude(e => e.Position)
+                .Select(d => new DepartmentDto
+                {
+                    Id = d.Id,
+                    DepartmentName = d.DepartmentName,
+                    TotalEmployees = d.Employees.Count(e => e.IsActive), // Thêm trường đếm nếu cần
+                    Employees = d.Employees
+                        .Where(e => e.IsActive)
+                        .Select(e => new EmployeeListItemDto
+                        {
+                            EmployeeCode = e.EmployeeCode,
+                            FullName = e.FirstName + " " + e.LastName,
+                            PositionName = e.Position != null ? e.Position.PositionName : "Chưa có chức vụ",
+                            IsActive = e.IsActive
+                        }).ToList()
+                })
+                .ToListAsync();
         }
 
-        public async Task<bool> UpdateDepartment(DepartmentDto dto)
+        public async Task<bool> CreateDepartment(DepartmentDto dto)
         {
-            var name = dto.DepartmentName.Trim().ToLower();
-            var department = await _context.Departments
-                .FirstOrDefaultAsync(d => d.DepartmentName.ToLower().Trim() == name);
+            var exists = await _context.Departments
+                .AnyAsync(d => d.DepartmentName.ToLower() == dto.DepartmentName.ToLower().Trim());
 
-            if (department == null)
-                return (false); // Trả về false nếu không tìm thấy phòng ban
-            department.DepartmentName = department.DepartmentName; // Cập nhật tên phòng ban
-            return await _unitOfWork.SaveChangesAsync() > 0; // Trả về true nếu cập nhật thành công
+            if (exists) return false;
+
+            var newDept = new Department { DepartmentName = dto.DepartmentName.Trim() };
+            await _context.Departments.AddAsync(newDept);
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+        public async Task<bool> UpdateDepartment(int id, string newName)
+        {
+            var department = await _context.Departments.FindAsync(id);
+            if (department == null) return false;
+
+            // Kiểm tra xem tên mới có trùng với phòng khác không
+            var nameExists = await _context.Departments
+                .AnyAsync(d => d.Id != id && d.DepartmentName.ToLower() == newName.ToLower().Trim());
+            if (nameExists) return false;
+
+            department.DepartmentName = newName.Trim();
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> DeleteDepartment(int id)
+        {
+            var department = await _context.Departments
+                .Include(d => d.Employees)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            // Chặn xóa nếu phòng đang có nhân viên để tránh lỗi SQL FK
+            if (department == null || department.Employees.Any()) return false;
+
+            _context.Departments.Remove(department);
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Department?> GetDepartment(int id)
+        {
+            return await _context.Departments
+                .Include(d => d.Employees)
+                .FirstOrDefaultAsync(d => d.Id == id); 
         }
     }
 }

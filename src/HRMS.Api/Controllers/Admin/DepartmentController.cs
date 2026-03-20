@@ -15,19 +15,20 @@ namespace HRMS.Api.Controllers.AdminApi
             _departmentService = departmentService;
         }
 
-        // Lấy danh sách phòng ban
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<DepartmentDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDepartments()
         {
             var departments = await _departmentService.GetDepartments();
             return Ok(departments);
         }
 
-        // Lấy phòng ban theo tên
-        [HttpGet("{departmentName}")]
-        public async Task<IActionResult> GetDepartment(string departmentName)
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetDepartment(int id)
         {
-            var department = await _departmentService.GetDepartment(departmentName);
+            var department = await _departmentService.GetDepartment(id);
 
             if (department == null)
                 return BadRequest(new { message = "Phòng ban không tồn tại" });
@@ -35,8 +36,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(department);
         }
 
-        // Tạo phòng ban
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateDepartment([FromBody] DepartmentDto dto)
         {
             var department = await _departmentService.CreateDepartment(dto);
@@ -47,28 +49,31 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(new { message = "Thêm phòng thành công" });
         }
 
-        // Cập nhật phòng ban
-        [HttpPut("{departmentName}")]
-        public async Task<IActionResult> UpdateDepartment(string departmentName, [FromBody] DepartmentDto dto)
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateDepartment(int id, [FromBody] DepartmentDto dto)
         {
-            var department = await _departmentService.UpdateDepartment(dto);
+            // dto.DepartmentName là tên mới bạn nhập từ Form
+            var success = await _departmentService.UpdateDepartment(id, dto.DepartmentName);
 
-            if (!department)
-                return BadRequest(new { message = "Cập nhật không thành công" });
+            if (!success)
+                return BadRequest(new { message = "Cập nhật thất bại hoặc tên phòng đã tồn tại" });
 
             return Ok(new { message = "Cập nhật thành công" });
         }
 
-        // Xóa phòng ban
-        [HttpDelete("{departmentName}")]
-        public async Task<IActionResult> DeleteDepartment(string departmentName)
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteDepartment(int id)
         {
-            var department = await _departmentService.DeleteDepartment(departmentName);
+            var success = await _departmentService.DeleteDepartment(id);
 
-            if (!department)
-                return BadRequest(new { message = "Xóa thất bại" });
+            if (!success)
+                return BadRequest(new { message = "Không thể xóa phòng ban đang có nhân viên" });
 
-            return Ok(new { message = "Xóa thành công" });
+            return Ok(new { message = "Xóa phòng ban thành công" });
         }
     }
 }

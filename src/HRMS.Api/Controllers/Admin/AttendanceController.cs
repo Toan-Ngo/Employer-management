@@ -17,12 +17,15 @@ namespace HRMS.Api.Controllers.AdminApi
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AttendanceDto>), StatusCodes.Status200OK)] // Cần có DTO tương ứng
         public async Task<IActionResult> GetAttendances()
         {
             var attendances = await _attendanceService.GetAttendances();
             return Ok(attendances);
         }
+
         [HttpGet("today")]
+        [ProducesResponseType(typeof(IEnumerable<AttendanceDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTodayAttendance()
         {
             var result = await _attendanceService.GetTodayAttendanceAsync();
@@ -30,10 +33,11 @@ namespace HRMS.Api.Controllers.AdminApi
         }
 
         [HttpGet("employee/{employeeCode}")]
+        [ProducesResponseType(typeof(IEnumerable<AttendanceDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAttendanceByEmployee(string employeeCode)
         {
-            var attendances = await _attendanceService
-                .GetAttendancesByEmployeeId(employeeCode);
+            var attendances = await _attendanceService.GetAttendancesByEmployeeId(employeeCode);
 
             if (!attendances.Any())
                 return NotFound("Không có dữ liệu");
@@ -42,6 +46,8 @@ namespace HRMS.Api.Controllers.AdminApi
         }
 
         [HttpPost("checkin/{employeeId}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CheckIn(int employeeId)
         {
             var result = await _attendanceService.CheckIn(employeeId);
@@ -53,6 +59,8 @@ namespace HRMS.Api.Controllers.AdminApi
         }
 
         [HttpPut("checkout/{attendanceId}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CheckOut(int attendanceId)
         {
             var result = await _attendanceService.CheckOut(attendanceId);
@@ -64,6 +72,8 @@ namespace HRMS.Api.Controllers.AdminApi
         }
 
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody] UpdateAttendanceDto dto)
         {
             var result = await _attendanceService.UpdateAttendance(dto);
@@ -75,6 +85,8 @@ namespace HRMS.Api.Controllers.AdminApi
         }
 
         [HttpDelete("{attendanceId}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int attendanceId)
         {
             var result = await _attendanceService.DeleteAttendance(attendanceId);

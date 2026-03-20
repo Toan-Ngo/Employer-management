@@ -15,16 +15,17 @@ namespace HRMS.Api.Controllers.AdminApi
             _salaryService = salaryService;
         }
 
-        // Lấy tất cả lương
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<SalaryDto>), StatusCodes.Status200OK)] // Thay bằng DTO của bạn
         public async Task<IActionResult> GetSalaries()
         {
             var salaries = await _salaryService.GetSalaries();
             return Ok(salaries);
         }
 
-        // Lấy lương theo mã nhân viên
         [HttpGet("employee/{employeeCode}")]
+        [ProducesResponseType(typeof(IEnumerable<SalaryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetSalary(string employeeCode)
         {
             var salary = await _salaryService.GetSalary(employeeCode);
@@ -35,8 +36,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok(salary);
         }
 
-        // Tạo lương
         [HttpPost]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateSalary(CreateSalaryDto dto)
         {
             var result = await _salaryService.CreateSalary(dto);
@@ -47,8 +49,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok("Tạo lương thành công");
         }
 
-        // Cập nhật lương
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateSalary(int id, UpdateSalaryDto dto)
         {
             var result = await _salaryService.UpdateSalary(id, dto);
@@ -59,8 +62,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok("Cập nhật thành công");
         }
 
-        // Xóa lương
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteSalary(int id)
         {
             var result = await _salaryService.DeleteSalary(id);

@@ -1,83 +1,89 @@
+// _nav.ts
 import { INavData } from '@coreui/angular';
+import { PERMISSIONS } from '../../shared/constants/permissions.constants';
 
-export const navItems: INavData[] = [
-  {
-    name: 'Tổng Quan',
-    url: '/workforce-overview',
-    iconComponent: { name: 'cilSpeedometer' }
-  },
+export const navItems = (permissions: string[]): INavData[] => {
+  const has = (p: string) => permissions.includes(p);
 
-  {
-    title: true,
-    name: 'EMPLOYEE MANAGEMENT'
-  },
+  return [
+    {
+      name: 'Tổng Quan',
+      url: '/workforce-overview',
+      iconComponent: { name: 'cilSpeedometer' }
+    },
 
-  {
-    name: 'Nhân Sự',
-    url: '/employees',
-    iconComponent: { name: 'cilPeople' }
-  },
+    {
+      title: true,
+      name: 'EMPLOYEE MANAGEMENT'
+    },
 
-  {
-    name: 'Phòng Ban',
-    url: '/department',
-    iconComponent: { name: 'cilLayers' }
-  },
+    has(PERMISSIONS.EMPLOYEE.VIEW) && {
+      name: 'Nhân Sự',
+      url: '/employees',
+      iconComponent: { name: 'cilPeople' }
+    },
 
-  {
-    name: 'Chức Vụ',
-    url: '/positions',
-    iconComponent: { name: 'cilUser' }
-  },
+    has(PERMISSIONS.DEPARTMENT.VIEW) && {
+      name: 'Phòng Ban',
+      url: '/department',
+      iconComponent: { name: 'cilLayers' }
+    },
 
-  {
-    name: 'Hợp Đồng',
-    url: '/contracts',
-    iconComponent: { name: 'cilDescription' }
-  },
+    has(PERMISSIONS.POSITION.VIEW) && {
+      name: 'Chức Vụ',
+      url: '/positions',
+      iconComponent: { name: 'cilUser' }
+    },
 
-  {
-    title: true,
-    name: 'WORK MANAGEMENT'
-  },
+    has(PERMISSIONS.CONTRACT.VIEW) && {
+      name: 'Hợp Đồng',
+      url: '/contracts',
+      iconComponent: { name: 'cilDescription' }
+    },
 
-  {
-    name: 'Chấm Công',
-    url: '/attendance',
-    iconComponent: { name: 'cilTask' }
-  },
+    {
+      title: true,
+      name: 'WORK MANAGEMENT'
+    },
 
-  {
-    name: 'Đơn Nghỉ',
-    url: '/leave-request',
-    iconComponent: { name: 'cilCalendar' }
-  },
+    has(PERMISSIONS.ATTENDANCE.VIEW) && {
+      name: 'Chấm Công',
+      url: '/attendance',
+      iconComponent: { name: 'cilTask' }
+    },
 
-  {
-    title: true,
-    name: 'FINANCE'
-  },
+    has(PERMISSIONS.LEAVE_REQUEST.VIEW) && {
+      name: 'Đơn Nghỉ',
+      url: '/leave-request',
+      iconComponent: { name: 'cilCalendar' }
+    },
 
-  {
-    name: 'Lương',
-    url: '/payroll',
-    iconComponent: { name: 'cilDollar' }
-  },
+    {
+      title: true,
+      name: 'FINANCE'
+    },
 
-  {
-    name: 'Phản Hồi',
-    url: '/reports',
-    iconComponent: { name: 'cilChart' }
-  },
+    has(PERMISSIONS.SALARY.VIEW) && {
+      name: 'Lương',
+      url: '/payroll',
+      iconComponent: { name: 'cilDollar' }
+    },
 
-  {
-    title: true,
-    name: 'SYSTEM'
-  },
+    {
+      name: 'Phản Hồi',
+      url: '/reports',
+      iconComponent: { name: 'cilChart' }
+    },
 
-  {
-    name: 'Cài Đặt',
-    url: '/settings',
-    iconComponent: { name: 'cilSettings' }
-  }
-];
+    {
+      title: true,
+      name: 'SYSTEM'
+    },
+
+    {
+      name: 'Cài Đặt',
+      url: '/settings',
+      iconComponent: { name: 'cilSettings' }
+    }
+  ].filter(Boolean) as INavData[];
+};

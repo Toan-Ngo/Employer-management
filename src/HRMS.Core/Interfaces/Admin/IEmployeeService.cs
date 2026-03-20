@@ -9,7 +9,7 @@ namespace HRMS.Core.Interfaces.Admin
         Task<Employee> GetEmployee(string EmployCode);
         Task<string> GenerateEmployeeCode();
         Task<bool> CreateEmployee(CreateEmployeeDto employee);
-        Task<bool> UpdateEmployee(string employId, UpdateEmployeeDto dto);
+        Task<bool> UpdateEmployee( UpdateEmployeeDto dto);
         Task<bool> DeleteEmployee(string id);
     }
 }

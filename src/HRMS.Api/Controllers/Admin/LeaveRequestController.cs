@@ -1,4 +1,5 @@
-﻿using HRMS.Core.Interfaces.Admin;
+﻿using HRMS.Core.DTOs; // Thêm dòng này để dùng các DTO nếu cần
+using HRMS.Core.Interfaces.Admin;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Api.Controllers.AdminApi
@@ -14,24 +15,25 @@ namespace HRMS.Api.Controllers.AdminApi
             _leaveRequestService = leaveRequestService;
         }
 
-        // Lấy tất cả đơn nghỉ
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<LeaveRequestDto>), StatusCodes.Status200OK)] // Giả sử dùng LeaveRequestDto
         public async Task<IActionResult> GetLeaveRequests()
         {
             var result = await _leaveRequestService.GetLeaveRequests();
             return Ok(result);
         }
 
-        // Lấy đơn nghỉ theo nhân viên
         [HttpGet("employee/{employeeCode}")]
+        [ProducesResponseType(typeof(IEnumerable<LeaveRequestDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetLeaveRequestsByEmployee(string employeeCode)
         {
             var result = await _leaveRequestService.GetLeaveRequestByEmployee(employeeCode);
             return Ok(result);
         }
 
-        // Duyệt đơn nghỉ
         [HttpPut("approve/{id}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ApproveLeaveRequest(int id)
         {
             var result = await _leaveRequestService.ApproveLeaveRequest(id);
@@ -42,8 +44,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok("Đã duyệt đơn nghỉ");
         }
 
-        // Từ chối đơn nghỉ
         [HttpPut("reject/{id}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RejectLeaveRequest(int id)
         {
             var result = await _leaveRequestService.RejectLeaveRequest(id);
@@ -54,8 +57,9 @@ namespace HRMS.Api.Controllers.AdminApi
             return Ok("Đã từ chối đơn nghỉ");
         }
 
-        // Xóa đơn nghỉ
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteLeaveRequest(int id)
         {
             var result = await _leaveRequestService.DeleteLeaveRequest(id);

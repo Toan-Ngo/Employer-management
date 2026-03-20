@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NgScrollbar } from 'ngx-scrollbar';
 import {
   ContainerComponent,
+  INavData,
   ShadowOnScrollDirective,
   SidebarBrandComponent,
   SidebarComponent,
@@ -15,15 +16,10 @@ import {
 
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
 import { navItems } from './_nav';
-
-function isOverflown(element: HTMLElement) {
-  return (
-    element.scrollHeight > element.clientHeight ||
-    element.scrollWidth > element.clientWidth
-  );
-}
+import { TokenStorageService } from '../../shared/service/token-storage.service'
 
 @Component({
+  standalone: true,
   selector: 'app-dashboard',
   templateUrl: './default-layout.component.html',
   styleUrls: ['./default-layout.component.scss'],
@@ -45,5 +41,19 @@ function isOverflown(element: HTMLElement) {
   ],
 })
 export class DefaultLayoutComponent {
-  public navItems = [...navItems];
+  public navItems: INavData[] = [];
+
+  constructor(private tokenService: TokenStorageService,
+    private router: Router
+  ) {
+  }
+  ngOnInit(): void {
+    const user = this.tokenService.getUser();
+    if (!user) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    const permissions = this.tokenService.getUser()?.permissions ?? []; // lấy quyền user
+    this.navItems = navItems(permissions);
+  }
 }

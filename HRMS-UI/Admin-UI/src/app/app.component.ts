@@ -9,13 +9,15 @@ import {
 } from '@angular/router';
 import { delay, filter, map, tap } from 'rxjs/operators';
 
-import { ColorModeService, ToastModule } from '@coreui/angular';
+import { ColorModeService } from '@coreui/angular';
 import { IconSetService } from '@coreui/icons-angular';
 import { iconSubset } from './icons/icon-subset';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  template: '<router-outlet />',
+  template: `<p-toast position="top-center"></p-toast>
+    <router-outlet/>`,
   imports: [RouterOutlet, ToastModule],
 })
 export class AppComponent implements OnInit {

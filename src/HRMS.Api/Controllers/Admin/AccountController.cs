@@ -17,6 +17,7 @@ namespace HRMS.Api.Controllers.AdminApi
 
         // Lấy danh sách tất cả tài khoản
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AccountDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAccounts()
         {
             var accounts = await _accountService.GetAccounts();
@@ -25,6 +26,8 @@ namespace HRMS.Api.Controllers.AdminApi
 
         // Lấy tài khoản theo ID
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(AccountDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAccount(string id)
         {
             var account = await _accountService.GetAccount(id);
@@ -37,6 +40,8 @@ namespace HRMS.Api.Controllers.AdminApi
 
         // Tạo tài khoản mới
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateAccount([FromBody] CreateAccountDto dto)
         {
             var result = await _accountService.CreateAccount(dto);
@@ -49,6 +54,8 @@ namespace HRMS.Api.Controllers.AdminApi
 
         // Xóa tài khoản
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteAccount(string id)
         {
             var result = await _accountService.DeleteAccount(id);
