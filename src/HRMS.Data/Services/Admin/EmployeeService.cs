@@ -8,81 +8,85 @@ namespace HRMS.Data.Services.Admin
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly HRMSContext _context; // sử dụng HRMSContext để tương tác với cơ sở dữ liệu
-        private readonly IUnitOfWork _unitOfWork; // sử dụng IUnitOfWork để quản lý giao dịch
+        private readonly HRMSContext _context;
+        private readonly IUnitOfWork _unitOfWork;
+
         public EmployeeService(HRMSContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
             _unitOfWork = unitOfWork;
         }
+
         public async Task<List<EmployeeDto>> GetEmployees()
         {
             return await _context.Employees
+                .AsNoTracking()
                 .Include(e => e.Department)
                 .Include(e => e.Position)
                 .Select(e => new EmployeeDto
                 {
                     EmployeeCode = e.EmployeeCode,
-                    FullName = e.FirstName + " " + e.LastName,
-                    DepartmentName = e.Department.DepartmentName,
-                    PositionName = e.Position.PositionName,
+                    FullName = $"{e.FirstName} {e.LastName}",
+                    DepartmentName = e.Department != null ? e.Department.DepartmentName : "N/A",
+                    PositionName = e.Position != null ? e.Position.PositionName : "N/A",
                     HireDate = e.HireDate,
-                    isActive = e.IsActive
-
+                    isActive = e.IsActive,
+                    Avatar = e.Avatar
                 })
                 .ToListAsync();
         }
+
         public async Task<string> GenerateEmployeeCode()
         {
-            var lastEmployee = await _context.Employees
-                .OrderByDescending(e => e.Id) 
+            var lastCode = await _context.Employees
+                .AsNoTracking()
+                .Select(e => e.EmployeeCode)
+                .OrderByDescending(c => c)
                 .FirstOrDefaultAsync();
 
-            if (lastEmployee == null || string.IsNullOrEmpty(lastEmployee.EmployeeCode))
+            if (string.IsNullOrEmpty(lastCode))
                 return "NV001";
 
-            // Dùng Regex để chỉ lấy phần số ở cuối chuỗi
-            var match = Regex.Match(lastEmployee.EmployeeCode, @"\d+");
-
+            var match = Regex.Match(lastCode, @"\d+");
             if (match.Success)
             {
                 int lastNumber = int.Parse(match.Value);
                 return "NV" + (lastNumber + 1).ToString("D3");
             }
 
-            return "NV001"; // Dự phòng nếu không tìm thấy số trong mã cũ
+            return "NV001";
         }
-        public async Task<Employee> GetEmployee(string EmployeeCode)
+
+        public async Task<Employee?> GetEmployee(string employeeCode)
         {
-            var employee = await _context.Employees
+            if (string.IsNullOrWhiteSpace(employeeCode)) return null;
+
+            string searchCode = employeeCode.Trim().ToLower();
+
+            return await _context.Employees
                 .Include(e => e.Department)
                 .Include(e => e.Position)
-                .FirstOrDefaultAsync(e => e.EmployeeCode.ToLower().Trim() == EmployeeCode.ToLower().Trim());
-            if (employee == null)
-            {
-                return null;
-            }
-            return employee;
+                .FirstOrDefaultAsync(e => e.EmployeeCode != null &&
+                                          e.EmployeeCode.ToLower() == searchCode);
         }
+
         public async Task<bool> CreateEmployee(CreateEmployeeDto dto)
         {
-            // Tìm phòng ban
             var department = await _context.Departments
-                .FirstOrDefaultAsync(d => d.DepartmentName.Trim().ToLower() == dto.DepartmentName.Trim().ToLower());
+                .FirstOrDefaultAsync(d => d.DepartmentName.ToLower() == dto.DepartmentName.ToLower().Trim());
             if (department == null) return false;
 
-            // Tìm chức vụ
             var position = await _context.Positions
-                .FirstOrDefaultAsync(p => p.PositionName.Trim().ToLower() == dto.PositionName.Trim().ToLower());
+                .FirstOrDefaultAsync(p => p.PositionName.ToLower() == dto.PositionName.ToLower().Trim());
             if (position == null) return false;
 
             var employee = new Employee
             {
                 EmployeeCode = await GenerateEmployeeCode(),
-                FirstName = dto.FirstName.Trim(),
-                LastName = dto.LastName.Trim(),
-                Email = dto.Email.Trim(),
-                Phone = dto.Phone.Trim(),
+                FirstName = dto.FirstName?.Trim() ?? "",
+                LastName = dto.LastName?.Trim() ?? "",
+                Email = dto.Email?.Trim() ?? "",
+                Phone = dto.Phone?.Trim() ?? "",
                 DateOfBirth = dto.DateOfBirth,
                 Gender = (Employee.GenderType)dto.Gender,
                 Address = dto.Address,
@@ -90,7 +94,7 @@ namespace HRMS.Data.Services.Admin
                 PositionId = position.Id,
                 HireDate = DateTime.Now,
                 IsActive = true,
-                CreatedAt = DateTime.Now // Đảm bảo gán ngày tạo để tránh lỗi DB
+                CreatedAt = DateTime.Now
             };
 
             await _context.Employees.AddAsync(employee);
@@ -99,36 +103,53 @@ namespace HRMS.Data.Services.Admin
 
         public async Task<bool> UpdateEmployee(UpdateEmployeeDto dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.EmployeeCode)) return false;
+
             var employee = await _context.Employees
-                .FirstOrDefaultAsync(e => e.EmployeeCode.Trim() == dto.EmployeeCode.Trim());
+                .FirstOrDefaultAsync(e => e.EmployeeCode == dto.EmployeeCode.Trim());
 
             if (employee == null) return false;
 
-            // Tìm phòng ban
-            var department = await _context.Departments
-                .FirstOrDefaultAsync(d => d.DepartmentName.ToLower().Trim() == dto.DepartmentName.ToLower().Trim());
+            if (!string.IsNullOrEmpty(dto.DepartmentName))
+            {
+                var department = await _context.Departments
+                    .FirstOrDefaultAsync(d => d.DepartmentName.ToLower() == dto.DepartmentName.ToLower().Trim());
+                if (department != null) employee.DepartmentId = department.Id;
+            }
 
-            if (department != null) employee.DepartmentId = department.Id;
-
-            // Tìm chức vụ 
             if (!string.IsNullOrEmpty(dto.PositionName))
             {
                 var position = await _context.Positions
-                    .FirstOrDefaultAsync(p => p.PositionName.ToLower().Trim() == dto.PositionName.ToLower().Trim());
+                    .FirstOrDefaultAsync(p => p.PositionName.ToLower() == dto.PositionName.ToLower().Trim());
                 if (position != null) employee.PositionId = position.Id;
             }
 
+            employee.UpdatedAt = DateTime.Now;
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteEmployee(string employeeCode)
         {
-            // 
-            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeCode == employeeCode);
+            if (string.IsNullOrWhiteSpace(employeeCode)) return false;
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeCode == employeeCode.Trim());
+
             if (employee == null) return false;
 
-            // Thay vì _context.Employees.Remove(employee);
-            employee.IsActive = false; // Chuyển trạng thái hoạt động thành false
+            employee.IsActive = false;
+            employee.UpdatedAt = DateTime.Now;
+
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+        public async Task<bool> UpdateAvatar(string employeeCode, string avatarPath)
+        {
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeCode == employeeCode);
+
+            if (employee == null) return false;
+
+            employee.Avatar = avatarPath; 
             employee.UpdatedAt = DateTime.Now;
 
             return await _unitOfWork.SaveChangesAsync() > 0;

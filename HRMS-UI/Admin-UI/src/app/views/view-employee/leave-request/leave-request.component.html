@@ -1,0 +1,84 @@
+<c-card class="mb-4 shadow-sm border-top-primary border-top-3">
+  <c-card-header class="d-flex justify-content-between align-items-center bg-white py-3">
+    <strong class="fs-5 text-primary">LỊCH SỬ NGHỈ PHÉP</strong>
+    <button cButton color="primary" variant="outline" size="sm" (click)="showModalAdd()">
+      + Tạo đơn mới
+    </button>
+  </c-card-header>
+  <c-card-body>
+    <table [striped]="true" [responsive]="true" cTable hover>
+      <thead>
+        <tr>
+          <th>Ngày gửi</th>
+          <th>Bắt đầu</th>
+          <th>Kết thúc</th>
+          <th>Lý do</th>
+          <th>Trạng thái</th>
+          <th style="width: 140px">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of leaves">
+          <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>{{ item.startDate | date:'dd/MM/yyyy' }}</td>
+          <td>{{ item.endDate | date:'dd/MM/yyyy' }}</td>
+          <td>{{ item.reason }}</td>
+          <td>
+            <c-badge [color]="getStatusColor(item.status)">
+              {{ item.status }}
+            </c-badge>
+          </td>
+          <td>
+            <div class="d-flex gap-1" *ngIf="item.status?.toString() === 'Pending' || item.status?.toString() === '0'">
+              <button cButton color="info" size="sm" (click)="showModalEdit(item)" title="Sửa">
+                Sửa
+              </button>
+              <button cButton color="danger" size="sm" (click)="deleteLeave(item.id!)" title="Xóa">
+                Xóa
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="leaves.length === 0">
+          <td colspan="6" class="text-center py-4 text-muted italic">
+            Bạn chưa có đơn xin nghỉ phép nào.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </c-card-body>
+</c-card>
+
+<c-modal [visible]="visible" (visibleChange)="visible = $event" alignment="center">
+  <c-modal-header class="bg-light">
+    <h5 cModalTitle class="fw-bold">{{ isEdit ? 'CẬP NHẬT ĐƠN NGHỈ' : 'TẠO ĐƠN NGHỈ MỚI' }}</h5>
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="leaveForm" (ngSubmit)="saveLeave()">
+      <div class="mb-3">
+        <label cLabel for="startDate">Từ ngày</label>
+        <input cFormControl id="startDate" type="date" formControlName="startDate" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="endDate">Đến ngày</label>
+        <input cFormControl id="endDate" type="date" formControlName="endDate" />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="reason">Lý do nghỉ</label>
+        <textarea cFormControl id="reason" rows="4" formControlName="reason"
+                  placeholder="Vui lòng nhập lý do chi tiết..."></textarea>
+        <div *ngIf="leaveForm.get('reason')?.touched && leaveForm.get('reason')?.invalid" class="text-danger small mt-1">
+          Lý do nghỉ phải có ít nhất 5 ký tự.
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button cButton color="secondary" variant="ghost" (click)="visible = false" type="button">Hủy</button>
+        <button cButton color="primary" type="submit" [disabled]="leaveForm.invalid || loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          {{ isEdit ? 'Lưu thay đổi' : 'Gửi đơn ngay' }}
+        </button>
+      </div>
+    </form>
+  </c-modal-body>
+</c-modal>

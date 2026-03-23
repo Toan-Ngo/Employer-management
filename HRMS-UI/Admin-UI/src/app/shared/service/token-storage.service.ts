@@ -1,71 +1,71 @@
 import { Injectable } from '@angular/core';
-import { UserModel } from '../modules/user.model';
 
-const TOKEN_KEY = 'auth-token';
-const REFRESH_TOKEN_KEY = 'refresh-token';
 const USER_KEY = 'auth-user';
+const REFRESHTOKEN_KEY = 'auth-refreshtoken';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TokenStorageService {
+  private accessToken: string | null = null;
 
-  constructor() { }
+  constructor() {}
 
   signOut(): void {
     window.localStorage.clear();
-    window.sessionStorage.clear();
+    this.accessToken = null;
   }
 
-  // Lưu token thuần
   public saveToken(token: string): void {
-    window.localStorage.setItem(TOKEN_KEY, token);
+    this.accessToken = token;
 
     const user = this.decodeUserFromToken(token);
-    if (user?.id) {
-      this.saveUser({ ...user, accessToken: token });
+    if (user) {
+      const userToSave = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        permissions: user.permissions,
+        employeeCode: user.employeeCode,
+        avatar: user.avater,
+      };
+      this.saveUser(userToSave);
     }
   }
 
   public getToken(): string | null {
-    return window.localStorage.getItem(TOKEN_KEY);
+    return this.accessToken;
   }
 
   public saveRefreshToken(token: string): void {
-    window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    window.localStorage.removeItem(REFRESHTOKEN_KEY);
+    window.localStorage.setItem(REFRESHTOKEN_KEY, token);
   }
 
   public getRefreshToken(): string | null {
-    return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+    return window.localStorage.getItem(REFRESHTOKEN_KEY);
+  }
+
+  public getEmployeeCode(): string | null {
+    const token = this.getToken();
+    if (!token) {
+      const user = this.getUser();
+      return user?.employeeCode || null;
+    }
+    const payload = this.decodeJwtPayload(token);
+    return payload.EmployeeCode || payload.employeeCode || null;
   }
 
   public saveUser(user: any): void {
     window.localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
-  public getUser(): UserModel | null {
+  public getUser(): any | null {
     const userJson = window.localStorage.getItem(USER_KEY);
     if (!userJson) return null;
     return JSON.parse(userJson);
   }
 
-  public getPermissions(): string[] {
-    const user = this.getUser();
-    if (user?.permissions?.length) {
-      return user.permissions; // dùng permissions từ localStorage nếu có
-    }
-
-    const token = this.getToken();
-    if (!token) return [];
-
-    const payload = this.decodeJwtPayload(token);
-    const roleClaim = payload['http://schemas.microsoft.com/ws/2005/05/identity/claims/role'];
-    if (!roleClaim) return [];
-
-    return Array.isArray(roleClaim) ? roleClaim : [roleClaim]; // map role claim thành mảng
-  }
-
-  // decode payload JWT an toàn (Base64 URL-safe)
   private decodeJwtPayload(token: string): any {
     try {
       const base64Url = token.split('.')[1];
@@ -78,25 +78,16 @@ export class TokenStorageService {
     }
   }
 
-  // Optional: decode unicode base64
-  private b64DecodeUnicode(str: string): string {
-    return decodeURIComponent(
-      Array.prototype.map.call(atob(str), (c: string) => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join('')
-    );
-  }
-
-  public decodeUserFromToken(token: string): UserModel | null {
+  public decodeUserFromToken(token: string): any {
     const payload = this.decodeJwtPayload(token);
     if (!payload) return null;
 
     return {
-      id: payload.id || payload.ID || null,
+      id: payload.Id || payload.id || null,
       email: payload.email || '',
       name: payload.name || '',
       permissions: payload.Permission || payload.permission || [],
-      accessToken: token
-    } as unknown as UserModel;
+      employeeCode: payload.EmployeeCode || payload.employeeCode || null,
+    };
   }
 }

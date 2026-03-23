@@ -3,6 +3,7 @@
     public class EmployeeDto
     {
         public string EmployeeCode { get; set; }
+        public string? Avatar { get; set; }
 
         public string FullName { get; set; }
 

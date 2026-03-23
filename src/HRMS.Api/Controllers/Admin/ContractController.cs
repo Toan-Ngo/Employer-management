@@ -1,11 +1,13 @@
 ﻿using HRMS.Core.DTOs;
 using HRMS.Core.Interfaces.Admin;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Api.Controllers.AdminApi
 {
     [Route("api/admin/contract")]
     [ApiController]
+    [Authorize]
     public class ContractController : ControllerBase
     {
         private readonly IContractService _contractService;

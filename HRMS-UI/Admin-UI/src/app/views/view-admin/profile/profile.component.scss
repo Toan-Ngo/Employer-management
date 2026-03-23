@@ -1,0 +1,69 @@
+.avatar-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  cursor: pointer;
+
+  .main-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .avatar-hover-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+  }
+
+  &:hover {
+    .avatar-hover-mask {
+      opacity: 1;
+    }
+    .main-avatar {
+      transform: scale(1.02);
+    }
+  }
+
+  .mask-content {
+    text-align: center;
+    svg {
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+  }
+}
+
+.border-top-3 {
+  border-top-width: 3px !important;
+}
+
+.letter-spacing-1 {
+  letter-spacing: 1px;
+}
+
+@media (min-width: 768px) {
+  .border-end-md {
+    border-right: 1px solid #eee !important;
+  }
+}
+
+.animate.fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

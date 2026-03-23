@@ -10,6 +10,11 @@ namespace HRMS.Data.Services.Admin
         private readonly HRMSContext _context;
         private readonly IUnitOfWork _unitOfWork;
 
+        public AttendanceService(HRMSContext context, IUnitOfWork unitOfWork)
+        {
+            _context = context;
+            _unitOfWork = unitOfWork;
+        }
 
         public async Task<int> GetTodayAttendanceAsync()
         {
@@ -19,23 +24,23 @@ namespace HRMS.Data.Services.Admin
                 .Where(a => a.AttendanceDate.Date == today && a.CheckInTime != null)
                 .CountAsync();
         }
-        public AttendanceService(HRMSContext context, IUnitOfWork unitOfWork)
-        {
-            _context = context;
-            _unitOfWork = unitOfWork;
-        }
 
         public async Task<List<AttendanceDto>> GetAttendances()
         {
             return await _context.Attendances
+               
                 .Select(a => new AttendanceDto
                 {
                     Id = a.Id,
+                    EmployeeCode = a.Employee.EmployeeCode,
+                    FullName = a.Employee.FirstName + a.Employee.LastName, 
                     CheckInTime = a.CheckInTime,
                     CheckOutTime = a.CheckOutTime
                 })
+                .OrderByDescending(a => a.CheckInTime) 
                 .ToListAsync();
         }
+
         public async Task<List<AttendanceDto>> GetAttendancesByEmployeeId(string employeeCode)
         {
             employeeCode = employeeCode.ToLower().Trim();
@@ -45,9 +50,12 @@ namespace HRMS.Data.Services.Admin
                 .Select(a => new AttendanceDto
                 {
                     Id = a.Id,
+                    EmployeeCode = a.Employee.EmployeeCode,
+                    FullName = a.Employee.FirstName + a.Employee.LastName,
                     CheckInTime = a.CheckInTime,
                     CheckOutTime = a.CheckOutTime
                 })
+                .OrderByDescending(a => a.CheckInTime)
                 .ToListAsync();
         }
 

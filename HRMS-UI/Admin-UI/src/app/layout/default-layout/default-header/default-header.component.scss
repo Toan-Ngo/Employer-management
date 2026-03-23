@@ -1,0 +1,24 @@
+.header-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  border: 2px solid #fff;
+  background-color: #f8f9fa;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease-in-out;
+
+  /* Hiệu ứng phóng to nhẹ khi trỏ chuột */
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  /* Can thiệp sâu vào thẻ <img> ẩn bên trong component c-avatar */
+  ::ng-deep img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* Lệnh này ép ảnh vuông/chữ nhật thành bo tròn mà không bị dẹt */
+  }
+}

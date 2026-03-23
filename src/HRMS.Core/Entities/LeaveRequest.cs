@@ -18,6 +18,8 @@ namespace HRMS.Core.Entities
         [StringLength(200)]
         public string Reason { get; set; } // Lý do xin nghỉ
         public LeaveStatus Status { get; set; } = LeaveStatus.Pending; // Trạng thái (đang chờ, đã duyệt, đã từ chối)
+        public DateTime CreatedAt { get; set; }
+
         public enum LeaveStatus
         {
             Pending,

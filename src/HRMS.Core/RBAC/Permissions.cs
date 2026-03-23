@@ -6,6 +6,7 @@
         {
             public const string View = "Permissions.Account.View";
             public const string Create = "Permissions.Account.Create";
+            public const string Update = "Permissions.Account.Update";
             public const string Delete = "Permissions.Account.Delete";
         }
 
@@ -40,6 +41,7 @@
             public const string Delete = "Permissions.Attendance.Delete";
             public const string CheckIn = "Permissions.Attendance.CheckIn";
             public const string CheckOut = "Permissions.Attendance.CheckOut";
+            public const string Manage = "Permissions.Attendance.Manage";
         }
 
         public static class Contract
@@ -56,6 +58,7 @@
             public const string Create = "Permissions.Salary.Create";
             public const string Update = "Permissions.Salary.Update";
             public const string Delete = "Permissions.Salary.Delete";
+            public const string Manage = "Permissions.Salary.Manage";
         }
 
         public static class LeaveRequest
@@ -66,6 +69,12 @@
             public const string Delete = "Permissions.Leave.Delete";
             public const string Approve = "Permissions.Leave.Approve";
             public const string Reject = "Permissions.Leave.Reject";
+        }
+
+        public static class Report
+        {
+            public const string View = "Permissions.Report.View";
+            public const string Manage = "Permissions.Report.Manage";
         }
     }
 }

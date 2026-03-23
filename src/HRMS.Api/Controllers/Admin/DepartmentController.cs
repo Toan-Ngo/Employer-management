@@ -1,10 +1,11 @@
-﻿using HRMS.Core.DTOs;
-using HRMS.Core.Interfaces.Admin;
+﻿using HRMS.Core.Interfaces.Admin;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Api.Controllers.AdminApi
 {
     [Route("api/admin/department")]
+    [Authorize]
     [ApiController]
     public class DepartmentController : ControllerBase
     {

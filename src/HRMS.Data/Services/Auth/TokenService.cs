@@ -21,15 +21,15 @@ namespace HRMS.Data.Services.Auth
         public string GenerateAccessToken(IEnumerable<Claim> claims)
         {
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_jwtTokenSettings.Key));
+                Encoding.UTF8.GetBytes(_jwtTokenSettings.Key)); // Dùng .Key
 
             var creds = new SigningCredentials(
                 key,
                 SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _jwtTokenSettings.Issuer,
-                audience: _jwtTokenSettings.Audience,
+                issuer: _jwtTokenSettings.Issuer, // Dùng .Issuer
+                audience: _jwtTokenSettings.Audience, // Dùng .Audience
                 claims: claims,
                 expires: DateTime.Now.AddHours(_jwtTokenSettings.ExpireInHours),
                 signingCredentials: creds
@@ -41,10 +41,8 @@ namespace HRMS.Data.Services.Auth
         public string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
-
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
-
             return Convert.ToBase64String(randomNumber);
         }
 
@@ -56,14 +54,13 @@ namespace HRMS.Data.Services.Auth
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 ValidateLifetime = false,
-                ValidIssuer = _jwtTokenSettings.Issuer,
-                ValidAudience = _jwtTokenSettings.Audience,
+                ValidIssuer = _jwtTokenSettings.Issuer, // Đổi sang ValidIssuer
+                ValidAudience = _jwtTokenSettings.Audience, // Đổi sang ValidAudience
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_jwtTokenSettings.Key))
+                    Encoding.UTF8.GetBytes(_jwtTokenSettings.Key)) // Đổi sang SymmetricSecurityKey
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-
             var principal = tokenHandler.ValidateToken(
                 token,
                 tokenValidationParameters,

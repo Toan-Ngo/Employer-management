@@ -8,6 +8,7 @@ namespace HRMS.Core.Entities
     {
         [Key]
         public int Id { get; set; }
+        public string? Avatar { get; set; }
         [Required]
         [MaxLength(50)]
         public string EmployeeCode { get; set; }

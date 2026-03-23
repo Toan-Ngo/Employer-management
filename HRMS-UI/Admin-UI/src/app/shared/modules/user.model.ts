@@ -1,7 +1,10 @@
-export class UserModel{
-    id: string | undefined;
-    email!: string;
-    firstName!: string;
-    roles!: string[];
-    permissions: any;
+export class UserModel {
+  id: string | null | undefined;
+  email!: string;
+  name?: string;
+  firstName!: string;
+  employeeCode?: string;
+  roles!: string[];
+  permissions: any;
+  accessToken!: string;
 }

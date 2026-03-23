@@ -1,0 +1,108 @@
+<div class="card shadow-sm mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center bg-white py-3 border-bottom">
+    <h5 class="mb-0 text-primary fw-bold">
+      <i class="bi bi-wallet2 me-2"></i>Quản Lý Bảng Lương
+    </h5>
+    <button class="btn btn-primary btn-sm" (click)="openModal()">
+      <i class="bi bi-plus-circle me-1"></i> Tạo bảng lương mới
+    </button>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped align-middle mb-0">
+  <thead class="table-light">
+    <tr>
+      <th scope="col" class="ps-3">Mã NV</th>
+      <th scope="col" class="text-end">Lương cơ bản</th>
+      <th scope="col" class="text-end">Phụ cấp</th>
+      <th scope="col" class="text-end">Thưởng</th>
+      <th scope="col" class="text-end text-danger">Hao hụt</th>
+      <th scope="col" class="text-end text-primary fw-bold">Tổng lương</th>
+      <th scope="col" class="text-center">Thao tác</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let s of salaries">
+      <td class="ps-3 fw-medium">{{ s.employeeCode }}</td>
+      <td class="text-end">{{ s.luongCoBan | number:'1.0-0' }} đ</td>
+      <td class="text-end">{{ s.phuCap | number:'1.0-0' }} đ</td>
+      <td class="text-end text-success">+{{ s.thuong | number:'1.0-0' }} đ</td>
+      <td class="text-end text-danger">-{{ s.haoHut | number:'1.0-0' }} đ</td>
+
+      <td class="text-end text-primary fw-bold fs-6">
+        {{ s.luongThucNhan | number:'1.0-0' }} đ
+      </td>
+
+      <td class="text-center">
+        <button class="btn btn-sm btn-outline-danger" (click)="deleteSalary(s.id)" title="Xóa bảng lương">
+          <i class="bi bi-trash"></i> Xóa
+        </button>
+      </td>
+    </tr>
+
+    <tr *ngIf="salaries.length === 0 && !isLoading">
+      <td colspan="7" class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+        Không tìm thấy dữ liệu bảng lương nào.
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+  </div>
+</div>
+
+<div class="modal d-block" *ngIf="showModal" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <form [formGroup]="salaryForm" (ngSubmit)="submitSalary()">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold text-dark">Tạo Bảng Lương Mới</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-medium">Chọn nhân viên <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="employeeCode" [class.is-invalid]="salaryForm.get('employeeCode')?.invalid && salaryForm.get('employeeCode')?.touched">
+              <option value="">-- Chọn nhân viên --</option>
+              <option *ngFor="let emp of employees" [value]="emp.employeeCode">
+                {{ emp.fullName }} ({{ emp.employeeCode }})
+              </option>
+            </select>
+            <div class="invalid-feedback">Vui lòng chọn nhân viên.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium">Lương cơ bản (VNĐ) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="luongCoBan" min="0" step="100000" placeholder="Nhập mức lương cơ bản...">
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-medium">Phụ cấp</label>
+              <input type="number" class="form-control" formControlName="phuCap" min="0" step="10000" placeholder="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-medium">Thưởng</label>
+              <input type="number" class="form-control text-success" formControlName="thuong" min="0" step="10000" placeholder="0">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-medium text-danger">Khấu trừ / Hao hụt</label>
+            <input type="number" class="form-control text-danger" formControlName="haoHut" min="0" step="10000" placeholder="0">
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary px-4" [disabled]="salaryForm.invalid">
+            <i class="bi bi-save me-1"></i> Lưu bảng lương
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

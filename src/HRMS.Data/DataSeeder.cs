@@ -80,6 +80,7 @@ namespace HRMS.Data
                 {
                     UserName = "rootadmin",
                     Email = "rootadmin@gmail.com",
+                    PhoneNumber = employeeEntity.Phone,
                     EmployeeId = employeeEntity.Id,
                     CreatedAt = DateTime.Now,
                     IsActive = true,

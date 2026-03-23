@@ -1,0 +1,207 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-2 shadow-sm">
+      <c-card-header class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><strong>Quản lý nhân viên</strong></h5>
+        <button *ngIf="userPermissions.includes('Permissions.Employee.Create')" cButton color="primary" (click)="openAddModal()">
+          + Thêm nhân viên
+        </button>
+      </c-card-header>
+
+      <c-card-body>
+        <c-row class="mb-3 g-2">
+          <c-col md="4" sm="12">
+            <input cFormControl type="text" placeholder="Mã NV hoặc Họ tên..." [(ngModel)]="searchTerm"
+              (input)="search()" (keyup.enter)="search()" />
+          </c-col>
+
+          <c-col md="3" sm="6">
+            <select cSelect [(ngModel)]="selectedDepartment" (ngModelChange)="search()">
+              <option value="">-- Tất cả phòng ban --</option>
+              @for (dept of departments; track dept.id) {
+              <option [value]="dept.departmentName">{{ dept.departmentName }}</option>
+              }
+            </select>
+          </c-col>
+
+          <c-col md="2" sm="6">
+            <button cButton color="info" variant="outline" class="w-100" type="button" (click)="search()">
+              Tìm kiếm
+            </button>
+          </c-col>
+        </c-row>
+
+        <div class="table-responsive">
+          <table cTable [hover]="true" [striped]="true" class="align-middle border shadow-sm">
+            <thead cTableColor="light">
+              <tr>
+                <th scope="col" class="text-center">#</th>
+                <th scope="col">Mã NV</th>
+                <th scope="col">Họ & Tên</th>
+                <th scope="col">Phòng ban</th>
+                <th scope="col">Chức vụ</th>
+                <th scope="col">Ngày vào</th>
+                <th scope="col" class="text-center">Trạng thái</th>
+                <th scope="col" class="text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (isLoading && employees.length === 0) {
+              <tr>
+                <td colspan="8" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status"></div>
+                  <div class="mt-2 text-muted">Đang tải dữ liệu...</div>
+                </td>
+              </tr>
+              } @else {
+              @for (emp of employees; track emp.employeeCode; let i = $index) {
+              <tr>
+                <td class="text-center text-muted">{{ i + 1 }}</td>
+                <td><span class="badge bg-light text-dark border">#{{ emp.employeeCode }}</span></td>
+                <td><strong>{{ emp.fullName }}</strong></td>
+                <td>{{ emp.departmentName }}</td>
+                <td><small class="text-primary fw-semibold">{{ emp.positionName }}</small></td>
+                <td>{{ emp.hireDate | date:'dd/MM/yyyy' }}</td>
+                <td class="text-center">
+                  <c-badge [color]="emp.isActive ? 'success' : 'danger'" shape="rounded-pill">
+                    {{ emp.isActive ? 'Đang làm' : 'Đã nghỉ' }}
+                  </c-badge>
+                </td>
+                <td class="text-center">
+                  <button *ngIf="userPermissions.includes('Permissions.Employee.Update')"
+                          cButton color="info" variant="ghost" size="sm" (click)="openEditModal(emp)" title="Sửa">
+                    Sửa
+                  </button>
+
+                  <button *ngIf="userPermissions.includes('Permissions.Employee.Delete')"
+                          cButton color="danger" variant="ghost" size="sm" (click)="deleteEmployee(emp)" title="Cho nghỉ việc">
+                    Xóa
+                  </button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="8" class="text-center py-4 text-muted italic">
+                  🚫 Không tìm thấy nhân viên nào phù hợp.
+                </td>
+              </tr>
+              }
+              }
+            </tbody>
+          </table>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="visible" (visibleChange)="handleModalChange($event)" alignment="center" backdrop="static" size="lg">
+  <c-modal-header class="bg-light">
+    <h5 cModalTitle>
+      {{ isEditMode ? '📝 Cập nhật thông tin công tác' : '👤 Thêm nhân viên mới' }}
+    </h5>
+    <button cButtonClose (click)="visible = false"></button>
+  </c-modal-header>
+
+  <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+    <c-modal-body>
+      @if (!isEditMode) {
+      <c-row class="mb-3">
+        <c-col md="6">
+          <label cLabel>Họ <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="firstName" placeholder="Nguyễn Văn" />
+        </c-col>
+        <c-col md="6">
+          <label cLabel>Tên <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="lastName" placeholder="An" />
+        </c-col>
+      </c-row>
+
+      <c-row class="mb-3">
+        <c-col md="6">
+          <label cLabel>Email <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="email" type="email" placeholder="an.nguyen@company.com" />
+        </c-col>
+        <c-col md="6">
+          <label cLabel>Số điện thoại <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="phone" placeholder="09xxxxxxxx" />
+        </c-col>
+      </c-row>
+
+      <c-row class="mb-3">
+        <c-col md="6">
+          <label cLabel>Ngày sinh <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="dateOfBirth" type="date" />
+        </c-col>
+        <c-col md="6">
+          <label cLabel>Giới tính <span class="text-danger">*</span></label>
+          <select cSelect formControlName="gender">
+            <option [value]="0">Nam</option>
+            <option [value]="1">Nữ</option>
+            <option [value]="2">Khác</option>
+          </select>
+        </c-col>
+      </c-row>
+
+      <c-row class="mb-3">
+        <c-col md="12">
+          <label cLabel>Địa chỉ</label>
+          <textarea cFormControl formControlName="address" rows="2" placeholder="Số nhà, tên đường..."></textarea>
+        </c-col>
+      </c-row>
+
+      <c-row class="mb-3">
+        <c-col md="12">
+          <label cLabel>Quyền truy cập <span class="text-danger">*</span></label>
+          <select cSelect formControlName="role">
+            <option value="Employee">Nhân viên thông thường (Employee)</option>
+            <option value="HR">Quản lý nhân sự (HR)</option>
+          </select>
+          <div class="form-text text-muted small mt-1">
+            <i class="bi bi-info-circle"></i> Chỉ cho phép cấp quyền HR hoặc Employee khi tạo mới.
+          </div>
+        </c-col>
+      </c-row>
+
+      } @else {
+      <div class="alert alert-info py-2 small">
+        Hệ thống hiện chỉ cho phép cập nhật <strong>Phòng ban</strong> và <strong>Chức vụ</strong> của nhân sự
+        <strong>{{ currentEmployeeCode }}</strong>.
+      </div>
+      }
+
+      <hr>
+      <c-row class="mb-3 mt-4">
+        <c-col md="6">
+          <label cLabel>Phòng ban công tác <span class="text-danger">*</span></label>
+          <select cSelect formControlName="departmentName">
+            <option value="">-- Chọn phòng ban --</option>
+            @for (dept of departments; track dept.id) {
+            <option [value]="dept.departmentName">{{ dept.departmentName }}</option>
+            }
+          </select>
+        </c-col>
+        <c-col md="6">
+          <label cLabel>Chức vụ đảm nhiệm <span class="text-danger">*</span></label>
+          <select cSelect formControlName="positionName">
+            <option value="">-- Chọn chức vụ --</option>
+            @for (pos of positions; track pos.id) {
+            <option [value]="pos.positionName">{{ pos.positionName }}</option>
+            }
+          </select>
+        </c-col>
+      </c-row>
+    </c-modal-body>
+
+    <c-modal-footer class="bg-light">
+      <button (click)="visible = false" cButton color="secondary" type="button" variant="outline">Hủy</button>
+      <button cButton color="primary" type="submit" [disabled]="isLoading || employeeForm.invalid">
+        @if (isLoading) {
+        <span class="spinner-border spinner-border-sm me-1"></span> Đang xử lý...
+        } @else {
+        {{ isEditMode ? 'Lưu thay đổi' : 'Tạo nhân viên & Cấp tài khoản' }}
+        }
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>

@@ -11,5 +11,6 @@ namespace HRMS.Core.Interfaces.Admin
         Task<bool> CreateEmployee(CreateEmployeeDto employee);
         Task<bool> UpdateEmployee( UpdateEmployeeDto dto);
         Task<bool> DeleteEmployee(string id);
+        Task<bool> UpdateAvatar(string employeeCode, string avatarPath);
     }
 }

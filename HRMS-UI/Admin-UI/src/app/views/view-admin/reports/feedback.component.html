@@ -1,0 +1,88 @@
+<c-card class="mb-4 shadow-sm border-0">
+  <c-card-header class="bg-white py-3 border-bottom-0">
+    <h5 class="mb-0 text-primary"><strong>📩 Quản lý Phản hồi & Góp ý</strong></h5>
+  </c-card-header>
+  <c-card-body>
+    <div class="table-responsive">
+      <table cTable hover striped align="middle" class="border shadow-sm mb-0">
+        <thead cTableColor="light">
+          <tr>
+            <th>Mã NV</th>
+            <th>Tiêu đề</th>
+            <th>Loại</th>
+            <th>Ngày gửi</th>
+            <th class="text-center">Trạng thái</th>
+            <th class="text-center">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of feedbacks">
+            <td><span class="badge bg-light text-dark border">#{{item.employeeCode}}</span></td>
+            <td><strong>{{item.title}}</strong></td>
+            <td><small class="text-muted text-uppercase">{{item.type}}</small></td>
+            <td>{{item.createdAt | date:'dd/MM/yyyy HH:mm'}}</td>
+            <td class="text-center">
+              <c-badge [color]="getStatusColor(item.status)" shape="rounded-pill" class="px-3">
+                {{ getStatusText(item.status) }}
+              </c-badge>
+            </td>
+            <td class="text-center">
+              <button cButton color="primary" variant="ghost" size="sm" (click)="openReplyModal(item)">
+                {{ item.adminReply ? 'Sửa phản hồi' : 'Trả lời' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </c-card-body>
+</c-card>
+
+<c-modal [visible]="visible" (visibleChange)="visible = $event" size="lg" backdrop="static">
+  <c-modal-header class="bg-light">
+    <h5 cModalTitle>📝 Phản hồi góp ý của nhân viên</h5>
+    <button (click)="visible = false" cButtonClose></button>
+  </c-modal-header>
+
+  <c-modal-body *ngIf="selectedFeedback">
+    <c-row class="mb-3">
+      <c-col md="12">
+        <label cLabel class="fw-bold">Nội dung góp ý:</label>
+        <div class="p-3 bg-light border rounded shadow-sm">
+          <p class="mb-1 text-primary small">Tiêu đề: {{selectedFeedback.title}}</p>
+          <p class="mb-0">{{selectedFeedback.content}}</p>
+        </div>
+      </c-col>
+    </c-row>
+
+    <hr>
+
+    <form [formGroup]="replyForm">
+      <c-row class="mb-3">
+        <c-col md="12">
+          <label cLabel>Lời giải đáp / Hướng xử lý <span class="text-danger">*</span></label>
+          <textarea cFormControl rows="4" formControlName="replyContent" placeholder="Nhập câu trả lời cho nhân viên..."></textarea>
+        </c-col>
+      </c-row>
+
+      <c-row>
+        <c-col md="6">
+          <label cLabel>Cập nhật trạng thái</label>
+          <select cSelect formControlName="newStatus">
+            <option [value]="0">Chờ xử lý</option>
+            <option [value]="1">Đang xử lý</option>
+            <option [value]="2">Đã giải quyết</option>
+          </select>
+        </c-col>
+      </c-row>
+    </form>
+  </c-modal-body>
+
+  <c-modal-footer class="bg-light border-top-0">
+    <button cButton color="secondary" variant="outline" (click)="visible = false">Đóng</button>
+    <button cButton color="success" (click)="onSubmitReply()" [disabled]="isLoading || replyForm.invalid">
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      Gửi phản hồi
+    </button>
+  </c-modal-footer>
+</c-modal>

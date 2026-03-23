@@ -9,81 +9,81 @@ export const navItems = (permissions: string[]): INavData[] => {
     {
       name: 'Tổng Quan',
       url: '/workforce-overview',
-      iconComponent: { name: 'cilSpeedometer' }
+      iconComponent: { name: 'cilSpeedometer' },
     },
 
     {
       title: true,
-      name: 'EMPLOYEE MANAGEMENT'
+      name: 'EMPLOYEE MANAGEMENT',
     },
 
     has(PERMISSIONS.EMPLOYEE.VIEW) && {
       name: 'Nhân Sự',
       url: '/employees',
-      iconComponent: { name: 'cilPeople' }
+      iconComponent: { name: 'cilPeople' },
     },
 
     has(PERMISSIONS.DEPARTMENT.VIEW) && {
       name: 'Phòng Ban',
       url: '/department',
-      iconComponent: { name: 'cilLayers' }
+      iconComponent: { name: 'cilLayers' },
     },
 
     has(PERMISSIONS.POSITION.VIEW) && {
       name: 'Chức Vụ',
       url: '/positions',
-      iconComponent: { name: 'cilUser' }
+      iconComponent: { name: 'cilUser' },
     },
 
     has(PERMISSIONS.CONTRACT.VIEW) && {
       name: 'Hợp Đồng',
       url: '/contracts',
-      iconComponent: { name: 'cilDescription' }
+      iconComponent: { name: 'cilDescription' },
     },
 
     {
       title: true,
-      name: 'WORK MANAGEMENT'
+      name: 'WORK MANAGEMENT',
     },
 
     has(PERMISSIONS.ATTENDANCE.VIEW) && {
       name: 'Chấm Công',
       url: '/attendance',
-      iconComponent: { name: 'cilTask' }
+      iconComponent: { name: 'cilTask' },
     },
 
     has(PERMISSIONS.LEAVE_REQUEST.VIEW) && {
       name: 'Đơn Nghỉ',
       url: '/leave-request',
-      iconComponent: { name: 'cilCalendar' }
+      iconComponent: { name: 'cilCalendar' },
     },
 
     {
       title: true,
-      name: 'FINANCE'
+      name: 'FINANCE',
     },
 
     has(PERMISSIONS.SALARY.VIEW) && {
       name: 'Lương',
       url: '/payroll',
-      iconComponent: { name: 'cilDollar' }
+      iconComponent: { name: 'cilDollar' },
     },
 
     {
       name: 'Phản Hồi',
-      url: '/reports',
-      iconComponent: { name: 'cilChart' }
+      url: '/feedback',
+      iconComponent: { name: 'cilChart' },
     },
 
     {
       title: true,
-      name: 'SYSTEM'
+      name: 'SYSTEM',
     },
 
     {
       name: 'Cài Đặt',
       url: '/settings',
-      iconComponent: { name: 'cilSettings' }
-    }
+      iconComponent: { name: 'cilSettings' },
+    },
   ].filter(Boolean) as INavData[];
 };

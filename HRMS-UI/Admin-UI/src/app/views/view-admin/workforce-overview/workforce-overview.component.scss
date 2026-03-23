@@ -1,0 +1,66 @@
+.overview-container {
+  background-color: #f4f7f9; // Màu nền nhẹ để nổi bật các Card trắng
+  min-height: 100vh;
+}
+
+// Stats Icon Boxes
+.icon-box {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-soft-primary { background-color: rgba(50, 31, 219, 0.1); }
+.bg-soft-info    { background-color: rgba(51, 153, 255, 0.1); }
+.bg-soft-warning { background-color: rgba(249, 177, 21, 0.1); }
+.bg-soft-danger  { background-color: rgba(229, 83, 83, 0.1); }
+
+// Table Styling
+.custom-table {
+  thead th {
+    font-size: 0.75rem;
+    text-uppercase: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: #8a93a2;
+    border-top: none;
+    background-color: #fafbfc;
+    padding: 12px 8px;
+  }
+
+  tbody tr {
+    transition: all 0.2s;
+    &:hover { background-color: #f8f9ff !important; }
+  }
+}
+
+// Avatar placeholder
+.avatar-init {
+  width: 32px;
+  height: 32px;
+  background-color: #e2e6ea;
+  color: #4f5d73;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+// Attendance Circle Decoration
+.attendance-circle {
+  border: 8px solid #f0f2f5;
+  border-top-color: #321fdb;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

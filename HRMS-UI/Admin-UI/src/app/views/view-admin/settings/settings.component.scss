@@ -1,0 +1,19 @@
+:root {
+  transition: filter 0.2s ease; /* Chuyển đổi độ sáng mượt */
+}
+
+body {
+  /* Ép các thành phần con dùng biến màu từ root */
+  color: var(--app-text-color) !important;
+  line-height: var(--bs-body-line-height) !important;
+}
+
+/* Ép bo góc cho card và nút bấm */
+.card, .btn, .form-control, .modal-content {
+  border-radius: var(--bs-border-radius) !important;
+}
+
+/* Đảm bảo bảng luôn hiển thị chữ rõ */
+.table {
+  color: inherit !important;
+}

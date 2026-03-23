@@ -4,7 +4,7 @@
   "documentGenerator": {
     "fromDocument": {
       "json": "",
-      "url": "https://localhost:44387/swagger/AdminAPI/swagger.json",
+      "url": "https://localhost:44387/swagger/AdminApi/swagger.json",
       "output": null,
       "newLineBehavior": "Auto"
     }

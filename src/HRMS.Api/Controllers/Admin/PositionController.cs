@@ -1,11 +1,13 @@
 ﻿using HRMS.Core.DTOs;
 using HRMS.Core.Interfaces.Admin;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Api.Controllers.AdminApi
 {
     [Route("api/admin/position")]
     [ApiController]
+    [Authorize]
     public class PositionController : ControllerBase
     {
         private readonly IPositionService _positionService;

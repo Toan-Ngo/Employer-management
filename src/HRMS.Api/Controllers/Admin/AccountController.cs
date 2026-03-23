@@ -6,6 +6,7 @@ namespace HRMS.Api.Controllers.AdminApi
 {
     [Route("api/admin/account")]
     [ApiController]
+
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;

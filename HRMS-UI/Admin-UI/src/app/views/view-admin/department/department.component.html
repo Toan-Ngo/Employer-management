@@ -1,0 +1,93 @@
+<c-row>
+  <c-col xs="12" class="mb-4 d-flex justify-content-between align-items-center">
+    <h4 class="mb-0 text-primary fw-bold">Cơ cấu tổ chức theo Phòng ban</h4>
+    <button cButton color="primary" (click)="openAddModal()" class="shadow-sm">
+      + Thêm phòng ban mới
+    </button>
+  </c-col>
+
+  @if (isLoading && departments.length === 0) {
+    <div class="text-center w-100 my-5">
+      <c-spinner color="primary"></c-spinner>
+      <p class="text-muted">Đang tải dữ liệu...</p>
+    </div>
+  }
+
+  @for (dept of departments; track dept.id) {
+    <c-col xs="12" lg="6" class="mb-4">
+      <c-card class="shadow-sm border-top-primary border-top-3 h-100">
+        <c-card-header class="d-flex justify-content-between align-items-center bg-white py-3">
+          <div>
+            <span class="h5 mb-0 fw-bold">📂 {{ dept.departmentName }}</span>
+            <c-badge color="info" shape="rounded-pill" class="ms-2">
+              {{ dept.employees?.length || 0 }} nhân sự
+            </c-badge>
+          </div>
+          <div>
+            <button cButton color="info" variant="ghost" size="sm" (click)="openEditModal(dept)">Sửa</button>
+            <button cButton color="danger" variant="ghost" size="sm" (click)="deleteDept(dept.id!)">Xóa</button>
+          </div>
+        </c-card-header>
+
+        <c-card-body class="p-0">
+          <table cTable [hover]="true" [striped]="true" size="sm" class="mb-0 align-middle">
+            <thead cTableColor="light">
+              <tr>
+                <th class="ps-3" style="width: 100px">Mã NV</th>
+                <th>Họ Tên</th>
+                <th>Chức vụ</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (emp of dept.employees; track emp.employeeCode) {
+                <tr>
+                  <td class="ps-3 text-muted">#{{ emp.employeeCode }}</td>
+                  <td><strong>{{ emp.fullName }}</strong></td>
+                  <td><small class="text-primary">{{ emp.positionName }}</small></td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="text-center py-4 text-muted small italic">
+                    Phòng này hiện chưa có nhân sự trực thuộc.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  }
+</c-row>
+
+<c-modal [visible]="visible" (visibleChange)="visible = $event" alignment="center">
+  <c-modal-header class="bg-light">
+    <h5 cModalTitle class="fw-bold">{{ isEditMode ? 'Cập nhật tên phòng' : 'Thêm phòng ban mới' }}</h5>
+  </c-modal-header>
+  <form [formGroup]="deptForm" (ngSubmit)="onSubmit()">
+    <c-modal-body>
+      <div class="mb-3">
+        <label cLabel for="deptName" class="fw-semibold">Tên phòng ban</label>
+        <input cFormControl
+               id="deptName"
+               formControlName="departmentName"
+               placeholder="VD: Kỹ thuật, Nhân sự, Tài chính..."
+               [autofocus]="true" />
+        @if (deptForm.get('departmentName')?.touched && deptForm.get('departmentName')?.invalid) {
+          <small class="text-danger mt-1 d-block">Tên phòng ban không được để trống và tối thiểu 2 ký tự.</small>
+        }
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button (click)="visible = false" cButton color="secondary" type="button">Hủy</button>
+      <button cButton color="primary" type="submit" [disabled]="isLoading || deptForm.invalid">
+        @if (isLoading) {
+          <c-spinner size="sm" aria-hidden="true" class="me-1"></c-spinner>
+          Đang xử lý...
+        } @else {
+          {{ isEditMode ? 'Lưu thay đổi' : 'Tạo ngay' }}
+        }
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>

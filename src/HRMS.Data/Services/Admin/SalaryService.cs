@@ -8,8 +8,7 @@ namespace HRMS.Data.Services.Admin
     public class SalaryService : ISalaryService
     {
         private readonly HRMSContext _context;
-        private readonly IUnitOfWork _unitOfWork;
-
+        private readonly IUnitOfWork _unitOfWork; 
         public SalaryService(HRMSContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
@@ -22,6 +21,7 @@ namespace HRMS.Data.Services.Admin
                 .Include(s => s.Employee)
                 .Select(s => new SalaryDto
                 {
+                    Id = s.Id, 
                     EmployeeCode = s.Employee.EmployeeCode,
                     FullName = s.Employee.FirstName + " " + s.Employee.LastName,
                     LuongCoBan = s.LuongCoBan,
@@ -83,6 +83,7 @@ namespace HRMS.Data.Services.Admin
                 .Where(s => s.Employee.EmployeeCode.ToLower().Trim() == employeeCode.ToLower().Trim())
                 .Select(s => new SalaryDto
                 {
+                    Id = s.Id, 
                     EmployeeCode = s.Employee.EmployeeCode,
                     FullName = s.Employee.FirstName + " " + s.Employee.LastName,
                     LuongCoBan = s.LuongCoBan,
@@ -116,6 +117,7 @@ namespace HRMS.Data.Services.Admin
 
             salary.NgayTinhLuong = DateTime.UtcNow;
 
+   
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
     }

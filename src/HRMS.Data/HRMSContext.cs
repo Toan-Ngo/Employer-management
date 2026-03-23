@@ -12,6 +12,7 @@ namespace HRMS.Data
         {
         }
         // Định nghĩa DbSet cho các thực thể
+        public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Position> Positions { get; set; }
@@ -59,6 +60,16 @@ namespace HRMS.Data
                 .WithOne()
                 .HasForeignKey<ApplicationUser>(u => u.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Feedback>(entity =>
+            {
+                entity.ToTable("Feedbacks");
+                entity.HasKey(f => f.Id);
+
+                entity.Property(f => f.Title).IsRequired().HasMaxLength(200);
+                entity.Property(f => f.Content).IsRequired();
+                entity.Property(f => f.EmployeeCode).IsRequired();
+
+            });
 
             modelBuilder.Entity<ApplicationUser>().ToTable("Users");
 
@@ -73,22 +84,33 @@ namespace HRMS.Data
             modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
 
             modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
+
+            
         }
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
             var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is Employee && (e.State == EntityState.Added || e.State == EntityState.Modified));
+                .Where(e => (e.Entity is Employee || e.Entity is Feedback) &&
+                            (e.State == EntityState.Added || e.State == EntityState.Modified));
+
             foreach (var entry in entries)
             {
-                var employee = (Employee)entry.Entity;
-                if (entry.State == EntityState.Added)
+                // Logic cho Employee
+                if (entry.Entity is Employee employee)
                 {
-                    employee.CreatedAt = DateTime.UtcNow;
-                    employee.UpdatedAt = DateTime.UtcNow;
+                    if (entry.State == EntityState.Added)
+                    {
+                        employee.CreatedAt = DateTime.UtcNow;
+                        employee.UpdatedAt = DateTime.UtcNow;
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        employee.UpdatedAt = DateTime.UtcNow;
+                    }
                 }
-                else if (entry.State == EntityState.Modified)
+                if (entry.Entity is Feedback feedback && entry.State == EntityState.Added)
                 {
-                    employee.UpdatedAt = DateTime.UtcNow;
+                    feedback.CreatedAt = DateTime.UtcNow;
                 }
             }
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);

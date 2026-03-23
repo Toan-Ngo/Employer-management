@@ -1,12 +1,14 @@
-﻿using HRMS.Core.Entities;
-using HRMS.Core.DTOs;
+﻿using HRMS.Core.DTOs;
+using HRMS.Core.Entities;
 using HRMS.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Api.Controllers.AdminApi
 {
     [Route("api/admin/attendance")]
     [ApiController]
+    [Authorize]
     public class AttendanceController : ControllerBase
     {
         private readonly IAttendanceService _attendanceService;
