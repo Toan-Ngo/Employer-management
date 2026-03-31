@@ -1,7 +1,9 @@
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:8.0-bullseye-slim AS build
 WORKDIR /app
 
-COPY . .
+COPY ["src/HRMS.Api/HRMS.Api.csproj", "src/HRMS.Api/"]
+COPY ["src/HRMS.Core/HRMS.Core.csproj", "src/HRMS.Core/"]
+COPY ["src/HRMS.Data/HRMS.Data.csproj", "src/HRMS.Data/"]
 
 RUN dotnet publish "src/HRMS.Api/HRMS.Api.csproj" -c Release -o /app/out /p:UseAppHost=false
 
