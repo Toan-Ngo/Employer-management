@@ -1,0 +1,1 @@
+import{cb as n}from"./chunk-2RSDWO3S.js";import"./chunk-4CLCTAJ7.js";var o=(()=>{class t{static{this.\u0275fac=function(e){return new(e||t)}}static{this.\u0275cmp=n({type:t,selectors:[["app-attendance"]],decls:0,vars:0,template:function(e,a){},encapsulation:2})}}return t})();var m=[{path:"",component:o}];export{m as routes};
