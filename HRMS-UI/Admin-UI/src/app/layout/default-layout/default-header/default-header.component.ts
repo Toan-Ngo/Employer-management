@@ -113,11 +113,11 @@ export class DefaultHeaderComponent extends HeaderComponent implements OnInit {
               ? res.avatar
               : `/${res.avatar}`;
             this.userAvatarSrc = `${this.baseUrl}${path}`;
-            this.cdr.detectChanges();
           } else {
-            this.cdr.detectChanges();
             this.userAvatarSrc = `https://ui-avatars.com/api/?name=${encodeURIComponent(res.fullName || 'User')}&background=0D6EFD&color=fff&size=40`;
           }
+
+          this.cdr.detectChanges();
         },
         error: () => this.handleImageError(),
       });
@@ -129,6 +129,8 @@ export class DefaultHeaderComponent extends HeaderComponent implements OnInit {
   handleImageError() {
     this.userAvatarSrc = `https://ui-avatars.com/api/?name=User&background=random&size=40`;
     this.userFullName = 'Người dùng';
+
+    this.cdr.detectChanges();
   }
 
   private getEmployeeCodeFromToken(token: string): string | undefined {

@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import {
   HttpRequest,
   HttpHandler,
@@ -7,7 +8,7 @@ import {
   HttpErrorResponse,
   HttpClient,
 } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
 import { TokenStorageService } from './token-storage.service';
 import { Router } from '@angular/router';
@@ -18,34 +19,38 @@ export class AuthInterceptor implements HttpInterceptor {
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     null,
   );
+  private isBrowser: boolean;
 
   constructor(
     private tokenService: TokenStorageService,
     private http: HttpClient,
     private router: Router,
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   intercept(
     request: HttpRequest<any>,
     next: HttpHandler,
   ): Observable<HttpEvent<any>> {
-    // 1. Lấy token hiện tại từ Storage
-    const token = this.tokenService.getToken();
+    if (!this.isBrowser && !request.url.includes('auth/login')) {
+      return EMPTY;
+    }
 
+    const token = this.tokenService.getToken();
     let authReq = request;
+
     if (token) {
       authReq = this.addTokenHeader(request, token);
     }
 
-    // 2. Gửi kèm credentials (cookie) nếu cần và xử lý request
     authReq = authReq.clone({
       withCredentials: true,
     });
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // 3. Kiểm tra lỗi 401 (Unauthorized)
-        // Không xử lý refresh token nếu đang ở trang login để tránh vòng lặp
         if (error.status === 401 && !authReq.url.includes('auth/login')) {
           return this.handle401Error(authReq, next);
         }
@@ -83,6 +88,7 @@ export class AuthInterceptor implements HttpInterceptor {
         .pipe(
           switchMap((res: any) => {
             this.isRefreshing = false;
+
             this.tokenService.saveToken(res.token);
             this.tokenService.saveRefreshToken(res.refreshToken);
 
@@ -92,7 +98,6 @@ export class AuthInterceptor implements HttpInterceptor {
           }),
           catchError((err) => {
             this.isRefreshing = false;
-
             this.tokenService.signOut();
             this.router.navigate(['/login']);
             return throwError(() => err);

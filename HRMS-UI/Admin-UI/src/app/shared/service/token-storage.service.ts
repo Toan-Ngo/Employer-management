@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 const USER_KEY = 'auth-user';
 const REFRESHTOKEN_KEY = 'auth-refreshtoken';
+const ACCESSTOKEN_KEY = 'auth-token';
 
 @Injectable({
   providedIn: 'root',
@@ -11,13 +12,27 @@ export class TokenStorageService {
 
   constructor() {}
 
+  // Hàm kiểm tra xem code có đang chạy trên trình duyệt không
+  private isBrowser(): boolean {
+    return (
+      typeof window !== 'undefined' &&
+      typeof window.localStorage !== 'undefined'
+    );
+  }
+
   signOut(): void {
-    window.localStorage.clear();
+    if (this.isBrowser()) {
+      window.localStorage.clear();
+    }
     this.accessToken = null;
   }
 
   public saveToken(token: string): void {
     this.accessToken = token;
+    if (this.isBrowser()) {
+      window.localStorage.removeItem(ACCESSTOKEN_KEY);
+      window.localStorage.setItem(ACCESSTOKEN_KEY, token);
+    }
 
     const user = this.decodeUserFromToken(token);
     if (user) {
@@ -27,22 +42,29 @@ export class TokenStorageService {
         name: user.name,
         permissions: user.permissions,
         employeeCode: user.employeeCode,
-        avatar: user.avater,
+        avatar: user.avatar,
       };
       this.saveUser(userToSave);
     }
   }
 
   public getToken(): string | null {
+    if (!this.isBrowser()) return null; // Nếu ở Server, ngắt luôn
+
+    if (!this.accessToken) {
+      this.accessToken = window.localStorage.getItem(ACCESSTOKEN_KEY);
+    }
     return this.accessToken;
   }
 
   public saveRefreshToken(token: string): void {
+    if (!this.isBrowser()) return;
     window.localStorage.removeItem(REFRESHTOKEN_KEY);
     window.localStorage.setItem(REFRESHTOKEN_KEY, token);
   }
 
   public getRefreshToken(): string | null {
+    if (!this.isBrowser()) return null;
     return window.localStorage.getItem(REFRESHTOKEN_KEY);
   }
 
@@ -57,10 +79,13 @@ export class TokenStorageService {
   }
 
   public saveUser(user: any): void {
+    if (!this.isBrowser()) return;
+    window.localStorage.removeItem(USER_KEY);
     window.localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   public getUser(): any | null {
+    if (!this.isBrowser()) return null;
     const userJson = window.localStorage.getItem(USER_KEY);
     if (!userJson) return null;
     return JSON.parse(userJson);
@@ -73,7 +98,6 @@ export class TokenStorageService {
       while (base64.length % 4) base64 += '=';
       return JSON.parse(atob(base64));
     } catch (e) {
-      console.error('Invalid JWT token', e);
       return {};
     }
   }
@@ -88,6 +112,7 @@ export class TokenStorageService {
       name: payload.name || '',
       permissions: payload.Permission || payload.permission || [],
       employeeCode: payload.EmployeeCode || payload.employeeCode || null,
+      avatar: payload.Avatar || payload.avatar || null,
     };
   }
 }
