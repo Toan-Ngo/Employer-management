@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN dotnet publish "src/HRMS.Api/HRMS.Api.csproj" -c Release -o /app/out /p:UseAppHost=false
+RUN dotnet publish $(find . -name "*.Api.csproj") -c Release -o /app/out /p:UseAppHost=false
 
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:8.0-bullseye-slim AS final
 WORKDIR /app
